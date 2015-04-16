@@ -1,0 +1,9 @@
+Manifest-Version: 1.0
+Class-Path: api.jar spring-core-4.1.4.RELEASE.jar commons-logging-1.2.
+ jar spring-beans-4.1.4.RELEASE.jar spring-context-4.1.4.RELEASE.jar s
+ pring-aop-4.1.4.RELEASE.jar aopalliance-1.0.jar spring-expression-4.1
+ .4.RELEASE.jar spring-web-4.1.4.RELEASE.jar spring-tx-4.1.4.RELEASE.j
+ ar spring-jdbc-4.1.4.RELEASE.jar jackson-mapper-asl-1.9.12.jar jackso
+ n-core-asl-1.9.12.jar slf4j-api-1.7.1.jar slf4j-log4j12-1.7.1.jar log
+ 4j-1.2.17.jar
+

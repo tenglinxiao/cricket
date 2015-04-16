@@ -1,0 +1,59 @@
+{
+	# definition for metadata section.
+	"metadata": {
+		# metadata refresh time unit.
+		"timeunit": "minutes",
+		
+		# metadata refresh time period.
+		"period": 10,
+		
+		# dbs that have to master the metadata.
+		"db_settings": {
+			# default host.
+		    "host": "localhost",
+		    
+		    # default port.
+		    "port": 3306,
+		    
+		    # default username
+		    "username": "root",
+		    
+		    # default password
+		    "password": "angelfish",
+		    
+		    # dbs settings.
+		    "dbs": [{
+		    	# db id.
+		    	"id": "test",
+		    	
+		    	# specified host name.
+		        "host": "localhost",
+		        
+		        # specified username.
+			    "username": "root",
+			    
+			    # specified password.
+			    "password": "angelfish",
+			    
+			    # specified db name.
+		        "name": "test"
+		    },
+		    {
+		    	# db id.
+		    	"id": "midasdata",
+		    	
+		    	# specified host name.
+		        "host": "10.1.77.22",
+		        
+		        # specified username.
+			    "username": "aspnet_dianping",
+			    
+			    # specified password.
+			    "password": "dp!@OpQW34bn",
+			    
+			    # specified db name.
+		        "name": "DPMidasData"
+		    }]
+	    }
+	}
+}

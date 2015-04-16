@@ -1,0 +1,3 @@
+Manifest-Version: 1.0
+Class-Path: queryengine-1.0-SNAPSHOT.jar
+

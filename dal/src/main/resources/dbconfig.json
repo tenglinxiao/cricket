@@ -1,0 +1,51 @@
+#Note: Self defined approach to ignore the line commented with sharp/hash symbol at the beginning.
+#      Not common standards for comments on json.
+{	
+	# db settings option
+	"db_settings": {
+		# default host.
+	    "host": "localhost",
+	    
+	    # default port.
+	    "port": 3306,
+	    
+	    # default username
+	    "username": "root",
+	    
+	    # default password
+	    "password": "angelfish",
+	    
+	    # dbs settings.
+	    "dbs": [{
+	    	# db id.
+	    	"id": "test",
+	    	
+	    	# specified host name.
+	        "host": "localhost",
+	        
+	        # specified username.
+		    "username": "root",
+		    
+		    # specified password.
+		    "password": "angelfish",
+		    
+		    # specified db name.
+	        "name": "test"
+	    },
+	    {
+	    	# db id.
+	    	"id": "midasdata",
+	    	# specified host name.
+	        "host": "10.1.77.22",
+	        
+	        # specified username.
+		    "username": "aspnet_dianping",
+		    
+		    # specified password.
+		    "password": "dp!@OpQW34bn",
+		    
+		    # specified db name.
+	        "name": "DPMidasData"
+	    }]
+    }
+}

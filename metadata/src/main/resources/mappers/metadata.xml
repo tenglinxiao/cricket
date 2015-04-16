@@ -1,0 +1,64 @@
+<!DOCTYPE mapper
+    PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+    "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="metadata">
+	<select id="findColumns" parameterType="com.dianping.cricket.metadata.util.MetaDataQueryAdapter" resultType="hashmap">
+		select table_schema, table_name, column_name, column_default, is_nullable,
+		data_type, character_maximum_length, column_key from
+		information_schema.COLUMNS where table_schema = #{dbName} 
+		<if test="_parameter.tableList!=null">
+		and table_name
+		<if test="!_parameter.useIncludes">not</if>
+		in
+		<foreach item="item" index="index" collection="_parameter.tableList" open="("
+			separator="," close=")">
+			#{item}
+		</foreach>
+		</if>
+	</select>
+
+	<select id="findConstraints" parameterType="hashmap" resultType="hashmap">
+		select a.table_name, a.column_name, b.constraint_name, b.constraint_type
+		from information_schema.STATISTICS a
+		left join information_schema.TABLE_CONSTRAINTS b
+		on a.table_schema = b.table_schema and a.table_name = b.table_name
+		and a.index_name = b.constraint_name
+		where a.table_schema = #{dbName} 
+		<if test="_parameter.tableList!=null">
+		and a.table_name 
+		<if test="!_parameter.useIncludes">not</if>
+        in
+        <foreach item="item" index="index" collection="_parameter.tableList" open="("
+            separator="," close=")">
+            #{item}
+        </foreach>
+        </if>
+	</select>
+	
+	<select id="findForeignKeys" parameterType="hashmap" resultType="hashmap">
+		select b.constraint_name, b.table_name, b.column_name, b.referenced_table_name, b.referenced_column_name
+		from  information_schema.TABLE_CONSTRAINTS a
+		inner join information_schema.KEY_COLUMN_USAGE b
+		on a.table_schema = b.table_schema and a.table_name = b.table_name
+		and a.constraint_name = b.constraint_name
+		where a.constraint_type = 'FOREIGN KEY' and a.table_schema = #{dbName} 
+		<if test="_parameter.tableList!=null">
+		and b.table_name 
+		<if test="!_parameter.useIncludes">not</if>
+        in
+        <foreach item="item" index="index" collection="_parameter.tableList" open="("
+            separator="," close=")">
+            #{item}
+        </foreach>
+        </if>
+	</select>
+	
+	<select id="findTablesList" parameterType="string" resultType="hashmap">
+		select table_name from information_schema.tables where table_schema = #{dbName}
+	</select>
+
+	<select id="schemaCheck" parameterType="string" resultType="string">
+		${schemaCheck}
+	</select>
+</mapper>

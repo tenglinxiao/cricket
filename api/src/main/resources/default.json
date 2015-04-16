@@ -1,0 +1,6 @@
+## Default global settings.
+{
+	"global": {
+		"debug": false
+	 }
+}
