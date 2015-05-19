@@ -5,7 +5,7 @@ package com.dianping.cricket.api.exception;
  * @author uknow
  * @since 0.0.1
  */
-public class InvalidFormatException extends Exception {
+public class InvalidFormatException extends RuntimeException {
 	public InvalidFormatException(String msg) {
 		super(msg);
 	}

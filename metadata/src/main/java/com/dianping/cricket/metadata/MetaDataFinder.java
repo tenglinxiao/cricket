@@ -7,9 +7,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 
-import com.dianping.cricket.dal.DBConfig;
-import com.dianping.cricket.dal.DBConfigs;
 import com.dianping.cricket.dal.SessionStore;
+import com.dianping.cricket.dal.conf.DBConfig;
+import com.dianping.cricket.dal.conf.DBConfigs;
+import com.dianping.cricket.metadata.conf.MetaDataConfiguration;
 
 public class MetaDataFinder {
 	private static Logger logger = Logger.getLogger(MetaDataFinder.class);

@@ -1,9 +1,17 @@
 Manifest-Version: 1.0
-Class-Path: api.jar spring-core-4.1.4.RELEASE.jar commons-logging-1.2.
- jar spring-beans-4.1.4.RELEASE.jar spring-context-4.1.4.RELEASE.jar s
- pring-aop-4.1.4.RELEASE.jar aopalliance-1.0.jar spring-expression-4.1
- .4.RELEASE.jar spring-web-4.1.4.RELEASE.jar spring-tx-4.1.4.RELEASE.j
- ar spring-jdbc-4.1.4.RELEASE.jar jackson-mapper-asl-1.9.12.jar jackso
- n-core-asl-1.9.12.jar slf4j-api-1.7.1.jar slf4j-log4j12-1.7.1.jar log
- 4j-1.2.17.jar
+Class-Path: dal-1.0-SNAPSHOT.jar spring-core-4.1.4.RELEASE.jar commons
+ -logging-1.2.jar spring-beans-4.1.4.RELEASE.jar spring-context-4.1.4.
+ RELEASE.jar spring-aop-4.1.4.RELEASE.jar aopalliance-1.0.jar spring-e
+ xpression-4.1.4.RELEASE.jar spring-web-4.1.4.RELEASE.jar spring-tx-4.
+ 1.4.RELEASE.jar spring-jdbc-4.1.4.RELEASE.jar mysql-connector-java-5.
+ 1.34.jar api-1.0-SNAPSHOT.jar jackson-mapper-asl-1.9.12.jar jackson-c
+ ore-asl-1.9.12.jar slf4j-api-1.6.6.jar slf4j-log4j12-1.7.1.jar log4j-
+ 1.2.17.jar quartz-2.2.1.jar c3p0-0.9.1.1.jar jersey-container-servlet
+ -2.17.jar jersey-container-servlet-core-2.17.jar javax.inject-2.4.0-b
+ 10.jar jersey-common-2.17.jar javax.ws.rs-api-2.0.1.jar javax.annotat
+ ion-api-1.2.jar jersey-guava-2.17.jar hk2-api-2.4.0-b10.jar hk2-utils
+ -2.4.0-b10.jar aopalliance-repackaged-2.4.0-b10.jar hk2-locator-2.4.0
+ -b10.jar javassist-3.18.1-GA.jar osgi-resource-locator-1.0.1.jar jers
+ ey-server-2.17.jar jersey-client-2.17.jar jersey-media-jaxb-2.17.jar 
+ validation-api-1.1.0.Final.jar
 

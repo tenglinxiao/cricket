@@ -1,0 +1,15 @@
+<!DOCTYPE mapper
+    PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+    "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="mdx">
+	<select id="relationships" parameterType="hashmap" resultType="com.dianping.cricket.mdx.MdxRelationship">
+		select parent, child, relationship_type as type from relationship a
+		inner join relationship_type b on a.relationship_type = b.id
+		where a.parent = #{parent} and b.name = #{type};
+	</select>
+	<select id="relationshipType" parameterType="String" resultType="int">
+		select id from relationship_type
+		where name = #{name}
+	</select>
+</mapper>

@@ -29,6 +29,29 @@ public class MetaDataConstants {
 		public static enum KEY_TYPE {PRIMARY, UNIQUE, KEY};
 	}
 	
+	// Constants class.
+	public static class HiveConstants {
+		public final static String OWNER = "table_schema";
+		public final static String TABLE_NAME = "table_name";
+		public final static String COLUMN_NAME = "column_name";
+		public final static String REFERENCED_TABLE_NAME = "referenced_table_name";
+		public final static String REFERENCED_COLUMN_NAME = "referenced_column_name";
+		public final static String COLUMN_COMMENT = "column_comment";
+		public final static String COLUMN_DEFAULT = "column_default";
+		public final static String IS_NULLABLE = "is_nullable";
+		public final static String DATA_TYPE = "data_type";
+		public final static String CHARACTER_MAXIMUM_LENGTH = "character_maximum_length";
+		public final static String CONSTRAINT_NAME = "constraint_name";
+		public final static String CONSTRAINT_TYPE = "constraint_type";
+		public final static String COLUMN_KEY = "column_key";
+		
+		public final static String PRIMARY_KEY = "primary key";
+		public final static String PRIMARY_KEY_NAME = "primary";
+		public final static String UNIQUE_KEY = "unique";
+
+		public static enum KEY_TYPE {PRIMARY, UNIQUE, KEY};
+	}
+	
 	// Constants utility class.
 	public static class MySqlConstantsUtil {
 		

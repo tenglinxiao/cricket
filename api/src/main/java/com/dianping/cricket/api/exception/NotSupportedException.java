@@ -5,7 +5,7 @@ package com.dianping.cricket.api.exception;
  * @author uknow
  * @since 0.0.1
  */
-public class NotSupportedException extends Exception {
+public class NotSupportedException extends RuntimeException {
 	public NotSupportedException(String msg) {
 		super(msg);
 	}

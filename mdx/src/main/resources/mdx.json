@@ -1,0 +1,22 @@
+{
+	#
+	"mdx": {
+		"db_settings": {
+			"dbs": [{
+				"id": "mdx",
+				"host": "localhost",
+				"port": 3306,
+				"name": "mdx",
+				"username": "root",
+				"password": "angelfish"
+			}]
+		},
+		"connections": {
+			"pool": {
+				"core": 3,
+				"maximum": 5,
+				"idle": 300
+			}
+		}
+	}
+}

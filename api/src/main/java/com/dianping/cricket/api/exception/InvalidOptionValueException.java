@@ -6,7 +6,7 @@ package com.dianping.cricket.api.exception;
  * @author uknow
  * @since 0.0.1
  */
-public class InvalidOptionValueException extends Exception {
+public class InvalidOptionValueException extends RuntimeException {
 	public InvalidOptionValueException(String msg) {
 		super(msg);
 	}

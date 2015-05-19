@@ -101,6 +101,14 @@ class FactoryJdbc3Impl implements Factory {
         {
             super(olap4jConnection);
         }
+        
+        public void closeOnCompletion() throws SQLException {
+            throw new UnsupportedOperationException();
+        }
+
+        public boolean isCloseOnCompletion() throws SQLException {
+            throw new UnsupportedOperationException();
+        }
     }
 
     private static class XmlaOlap4jPreparedStatementJdbc3

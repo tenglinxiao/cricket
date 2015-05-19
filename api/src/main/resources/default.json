@@ -1,6 +1,10 @@
 ## Default global settings.
 {
 	"global": {
-		"debug": false
+		"debug": false,
+		"cache": {
+			"daemonsPerSection": 1,
+			"enableTTL": false
+		}
 	 }
 }

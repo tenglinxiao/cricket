@@ -26,16 +26,26 @@ import org.w3c.dom.Node;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 
+import com.dianping.cricket.dal.conf.DALConfiguration;
+import com.dianping.cricket.dal.conf.DBConfig;
+import com.dianping.cricket.dal.conf.DBConfigs;
 import com.sun.org.apache.xml.internal.serialize.OutputFormat;
 import com.sun.org.apache.xml.internal.serialize.XMLSerializer;
 
 
+/**
+ * Session store for storing all the session factories for all the dbs offered in the config, 
+ * which can accelerate the speed on requesting an sql session. 
+ * @author tenglinxiao
+ * @since 0.0.1
+ */
 public class SessionStore {
 	private final static String MYBATIS_CONFIG = "/mybatis.xml";
 	private final static String DRIVER = "com.mysql.jdbc.Driver";
 	private final static String CONNECTION_URL = "jdbc:mysql://%s:%d/%s";
 	private final static String CONFIG_PATH = "classpath*:/mappers/*.xml";
 	private static Logger logger = Logger.getLogger(SessionStore.class);
+	private static SessionStore store;
 	private HashMap<String, SqlSessionFactory> sessionFatories = new HashMap<String, SqlSessionFactory>();
 	private DBConfigs dbs = DALConfiguration.getConf().getDBs();
 	
@@ -72,6 +82,8 @@ public class SessionStore {
 				input.reset();
 			}
 			
+			store = this;
+			
 			logger.info("Done initializing session store!");
 		} catch(Exception e) {
 			e.printStackTrace();
@@ -80,6 +92,8 @@ public class SessionStore {
 	
 	
 	public String getMyBatisConfig() throws IOException, SAXException, ParserConfigurationException {
+		logger.info("It will take a while to search classpath for all mybatis mapper config files ... DO NOT regard this as system death. :)");
+		
 		// Read the mybatis config file.
 		BufferedReader reader = new BufferedReader(new InputStreamReader(SessionStore.class.getResourceAsStream(MYBATIS_CONFIG)));
 		
@@ -89,7 +103,6 @@ public class SessionStore {
 		source.setCharacterStream(reader);
 		Document doc = documentBuilder.parse(source);
 		
-		logger.info("It will take a while to search classpath for all mybatis mapper config files ... DO NOT regard this as system death. :)");
 		PathMatchingResourcePatternResolver resolver = new PathMatchingResourcePatternResolver();
 		
 		// Find the first mapper node.
@@ -100,12 +113,17 @@ public class SessionStore {
 		parent.removeChild(mapperNode);
 		
 		Resource[] resources = resolver.getResources(CONFIG_PATH);
+		
+		// Check for duplicate named files, mybatis api CAN NOT load correct mapper with same name under classpath.
+		checkDuplicates(resources);
+		
 		for (Resource resource : resources) {
 			Node node = mapperNode.cloneNode(true);
 			Attr attr = doc.createAttribute("resource");
 			attr.setNodeValue("mappers/" + resource.getFilename());
 			node.getAttributes().setNamedItem(attr);
 			parent.appendChild(node);
+			logger.info("Add found resource mapper file: [" + resource + "]");
 		}
 		
 		// Set output format.
@@ -120,6 +138,17 @@ public class SessionStore {
 		return writer.getBuffer().toString();
 	}
 	
+	private void checkDuplicates(Resource[] resources) {
+		for (int index = 0; index < resources.length; index++) {
+			for (int i = index + 1; i < resources.length; i++) {
+				if (resources[index].getFilename().equals(resources[i].getFilename())) {
+					logger.fatal("Found duplicate named files: [" + resources[index] + "," + resources[i] + "]");
+					logger.fatal("Duplicate named mapper files CAN NOT be well loaded into mybatis, due to this serious error, system will halt.");
+					System.exit(1);
+				}
+			}
+		}
+	}
 	
 	public SqlSession openSesion(String id) {
 		return sessionFatories.get(id).openSession();
@@ -128,6 +157,10 @@ public class SessionStore {
 	public SqlSessionFactory getSessionFactory(String id)
 	{
 		return sessionFatories.get(id);
+	}
+	
+	public static SessionStore getSessionStore() {
+		return store;
 	}
 
 }

@@ -13,7 +13,7 @@ import org.apache.log4j.Logger;
 
 import com.dianping.cricket.api.exception.InvalidCaseException;
 import com.dianping.cricket.api.exception.InvalidFormatException;
-import com.dianping.cricket.dal.DBConfig;
+import com.dianping.cricket.dal.conf.DBConfig;
 import com.dianping.cricket.metadata.mysql.Table;
 import com.dianping.cricket.metadata.util.MetaDataQueryAdapter;
 import com.dianping.cricket.metadata.util.MetadataParser;
@@ -28,7 +28,6 @@ public class MetaDataStore extends MetaDataLoader {
 	public MetaDataStore(DBConfig conf, SqlSessionFactory sessionFactory)
 	{
 		super(conf, sessionFactory);
-		
 	}
 	
 	public void init() {
@@ -116,7 +115,6 @@ public class MetaDataStore extends MetaDataLoader {
 
 	@Override
 	public void update(MetaDataEvent event) {
-		// TODO Auto-generated method stub
 		
 	}
 	

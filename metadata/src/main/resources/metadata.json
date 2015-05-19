@@ -37,22 +37,6 @@
 			    
 			    # specified db name.
 		        "name": "test"
-		    },
-		    {
-		    	# db id.
-		    	"id": "midasdata",
-		    	
-		    	# specified host name.
-		        "host": "10.1.77.22",
-		        
-		        # specified username.
-			    "username": "aspnet_dianping",
-			    
-			    # specified password.
-			    "password": "dp!@OpQW34bn",
-			    
-			    # specified db name.
-		        "name": "DPMidasData"
 		    }]
 	    }
 	}

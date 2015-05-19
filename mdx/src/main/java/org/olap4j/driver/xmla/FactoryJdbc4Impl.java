@@ -22,6 +22,7 @@ import org.olap4j.driver.xmla.proxy.XmlaOlap4jProxy;
 
 import java.sql.*;
 import java.util.*;
+import java.util.concurrent.Executor;
 
 /**
  * Implementation of {@link Factory} for JDBC 4.0.
@@ -108,6 +109,20 @@ class FactoryJdbc4Impl implements Factory {
         {
             super(olap4jConnection, headerList, rowList);
         }
+        
+        public <T> T getObject(
+            int columnIndex,
+            Class<T> type) throws SQLException
+        {
+            throw new UnsupportedOperationException();
+        }
+
+        public <T> T getObject(
+            String columnLabel,
+            Class<T> type) throws SQLException
+        {
+            throw new UnsupportedOperationException();
+        }
     }
 
     private static class XmlaOlap4jConnectionJdbc4
@@ -132,6 +147,21 @@ class FactoryJdbc4Impl implements Factory {
         {
             super(factory, driver, proxy, url, info);
         }
+        
+        public void abort(Executor executor) throws SQLException {
+            throw new UnsupportedOperationException();
+        }
+
+        public void setNetworkTimeout(
+            Executor executor,
+            int milliseconds) throws SQLException
+        {
+            throw new UnsupportedOperationException();
+        }
+
+        public int getNetworkTimeout() throws SQLException {
+            throw new UnsupportedOperationException();
+        }
     }
 
     private static class XmlaOlap4jCellSetJdbc4
@@ -149,6 +179,20 @@ class FactoryJdbc4Impl implements Factory {
         {
             super(olap4jStatement);
         }
+        
+        public <T> T getObject(
+            int columnIndex,
+            Class<T> type) throws SQLException
+        {
+            throw new UnsupportedOperationException();
+        }
+
+        public <T> T getObject(
+            String columnLabel,
+            Class<T> type) throws SQLException
+        {
+            throw new UnsupportedOperationException();
+        }
     }
 
     private static class XmlaOlap4jStatementJdbc4
@@ -163,6 +207,14 @@ class FactoryJdbc4Impl implements Factory {
             XmlaOlap4jConnection olap4jConnection)
         {
             super(olap4jConnection);
+        }
+        
+        public void closeOnCompletion() throws SQLException {
+            throw new UnsupportedOperationException();
+        }
+
+        public boolean isCloseOnCompletion() throws SQLException {
+            throw new UnsupportedOperationException();
         }
     }
 
@@ -182,6 +234,14 @@ class FactoryJdbc4Impl implements Factory {
         {
             super(olap4jConnection, mdx);
         }
+        
+        public void closeOnCompletion() throws SQLException {
+            throw new UnsupportedOperationException();
+        }
+
+        public boolean isCloseOnCompletion() throws SQLException {
+            throw new UnsupportedOperationException();
+        }
     }
 
     private static class XmlaOlap4jDatabaseMetaDataJdbc4
@@ -196,6 +256,19 @@ class FactoryJdbc4Impl implements Factory {
             XmlaOlap4jConnection olap4jConnection)
         {
             super(olap4jConnection);
+        }
+        
+        public ResultSet getPseudoColumns(
+                String catalog,
+                String schemaPattern,
+                String tableNamePattern,
+                String columnNamePattern) throws SQLException
+        {
+            throw new UnsupportedOperationException();
+        }
+
+        public boolean generatedKeyAlwaysReturned() throws SQLException {
+            throw new UnsupportedOperationException();
         }
     }
 }

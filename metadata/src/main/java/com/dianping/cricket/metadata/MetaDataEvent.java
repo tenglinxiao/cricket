@@ -1,7 +1,7 @@
 package com.dianping.cricket.metadata;
 
-import com.dianping.cricket.api.Event;
-import com.dianping.cricket.api.EventType;
+import com.dianping.cricket.api.event.Event;
+import com.dianping.cricket.api.event.EventType;
 
 public class MetaDataEvent extends Event {
 	public static enum MetaDataEventType implements EventType {

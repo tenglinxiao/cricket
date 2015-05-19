@@ -8,7 +8,8 @@ import java.util.concurrent.TimeUnit;
 import org.apache.ibatis.session.SqlSession;
 import org.apache.ibatis.session.SqlSessionFactory;
 
-import com.dianping.cricket.dal.DBConfig;
+import com.dianping.cricket.dal.conf.DBConfig;
+import com.dianping.cricket.metadata.conf.MetaDataConfiguration;
 
 public abstract class MetaDataLoader implements Runnable {
 	// DB config data.

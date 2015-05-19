@@ -1,0 +1,31 @@
+#Note: Self defined approach to ignore the line commented with sharp/hash symbol at the beginning.
+#      Not common standards for comments on json.
+{	
+	"scheduler": {
+		"bootShell": "src/main/webapp/bin/run.sh",
+		"jobJars": "src/main/webapp/jobs"
+	},
+	
+	# db settings option
+	"db_settings": {
+	    # dbs settings.
+	    "dbs": [{
+	    	# db id.
+	    	"id": "scheduler",
+	    	
+	    	# specified host name.
+	        "host": "localhost",
+	        
+	        "port": 3306,
+	        
+	        # specified username.
+		    "username": "root",
+		    
+		    # specified password.
+		    "password": "angelfish",
+		    
+		    # specified db name.
+	        "name": "scheduler"
+	    }]
+    }
+}
