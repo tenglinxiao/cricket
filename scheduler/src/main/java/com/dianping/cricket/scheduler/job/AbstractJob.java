@@ -2,10 +2,8 @@ package com.dianping.cricket.scheduler.job;
 
 import java.util.Calendar;
 import java.util.Date;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.TimeUnit;
 
+import org.apache.log4j.Logger;
 import org.quartz.InterruptableJob;
 import org.quartz.JobExecutionContext;
 import org.quartz.JobExecutionException;
@@ -14,16 +12,21 @@ import org.quartz.UnableToInterruptJobException;
 import com.dianping.cricket.scheduler.SchedulerLoader;
 import com.dianping.cricket.scheduler.pojo.JobStatus;
 import com.dianping.cricket.scheduler.pojo.JobStatus.Status;
+import com.dianping.cricket.scheduler.rest.exceptions.SchedulerPersistenceException;
 
-public abstract class AbstractJob implements InterruptableJob, TimeAware, Progressable, Job {
+public abstract class AbstractJob implements InterruptableJob, TimeAware, Job {
 	public static final String JOB_ID = "jobId";
+	public static final String RECOVERED = "recovered";
+	private static Logger logger = Logger.getLogger(AbstractJob.class);
 	private JobStatus status = new JobStatus();
 	private boolean isInterrupted;
-	private int percentage;
 	
 	@Override
 	public void execute(JobExecutionContext context)
 			throws JobExecutionException {
+		// Set job key.
+		status.getJob().setJobKey(context.getJobDetail().getKey());
+		
 		// Get start time.
 		status.setStartTime(getStartTime());
 		
@@ -33,41 +36,36 @@ public abstract class AbstractJob implements InterruptableJob, TimeAware, Progre
 		// Update the job current status in db.
 		updateStatus();
 		
-		// Start the job for preparation.
-		start(context);
-		
-		// Set up progress monitor thread.
-		ScheduledExecutorService service = Executors.newSingleThreadScheduledExecutor();
-		
-		// Schedule progress update every 5 mins.
-		service.scheduleAtFixedRate(new Runnable() {
-			public void run() {
-				percentage = progress();
-			}
-		}, 0, 5, TimeUnit.SECONDS);
-	
-		// Run the job.
-		run(context);
-		
-		// Shut down service scheduler.
-		service.shutdownNow();
-		
-		percentage = 100;
-		
-		// End the job.
-		end(context);
-		
-		// Get end time.
-		status.setEndTime(getEndTime());
-		
-		// Set status to success.
-		status.setStatus(Status.SUCCESS);
-		
-		// Update status again in db.
-		updateStatus();
-		
-		// Log status in db.
-		logStatus();
+		try {
+			// Start the job for preparation.
+			start(context);
+			
+			// Run the job.
+			run(context);
+			
+			// End the job.
+			end(context);
+			
+			// Set status to success.
+			status.setStatus(Status.SUCCESS);
+		} catch (Exception e) {
+			e.printStackTrace();
+			
+			// Set status to failure.
+			status.setStatus(Status.FAILURE);
+		} finally {
+			// Get end time.
+			status.setEndTime(getEndTime());
+
+			// Update status again in db.
+			updateStatus();
+			
+			// Log status in db.
+			logStatus();
+			
+			// Take extra actions on the for the job completion.
+			done(context);
+		}
 	}
 	
 	@Override
@@ -89,23 +87,38 @@ public abstract class AbstractJob implements InterruptableJob, TimeAware, Progre
 		return isInterrupted;
 	}
 	
-	public int getPercentage() {
-		return percentage;
-	}
-	
 	public JobStatus getStatus() {
 		return status;
 	}
 	
+	// Automatically called by scheduler.
 	public void setJobId(int jobId) {
-		this.status.setJobId(jobId);
+		this.status.getJob().setId(jobId);
+	}
+	
+	public void setRecovered(boolean recovered) {
+		this.status.setRecovered(recovered);
 	}
 
 	public void updateStatus() {
-		SchedulerLoader.getLoader().updateStatus(status);
+		// Recovered job status is not updated in db.
+		if (status.isRecovered()) {	
+			return;
+		}
+		try {
+			SchedulerLoader.getLoader().updateStatus(status);
+		} catch (SchedulerPersistenceException e) {
+			e.printStackTrace();
+			logger.info("Failed to update job status: [" + e.getMessage() + "]!");
+		}
 	}
 	
 	public void logStatus() {
-		SchedulerLoader.getLoader().logStatus(status);
+		try {
+			SchedulerLoader.getLoader().logStatus(status);
+		} catch (SchedulerPersistenceException e) {
+			e.printStackTrace();
+			logger.info("Failed to log job status: [" + e.getMessage() + "]!");
+		}
 	}
 }

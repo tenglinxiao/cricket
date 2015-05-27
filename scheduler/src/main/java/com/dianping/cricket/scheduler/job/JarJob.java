@@ -1,106 +1,101 @@
 package com.dianping.cricket.scheduler.job;
 
-import java.io.IOException;
-import java.net.URL;
-import java.net.URLClassLoader;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.Enumeration;
-import java.util.jar.JarEntry;
-import java.util.jar.JarFile;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 
+import org.apache.commons.mail.EmailException;
 import org.apache.log4j.Logger;
 import org.quartz.JobExecutionContext;
 import org.quartz.JobExecutionException;
+import org.quartz.JobKey;
+import org.quartz.UnableToInterruptJobException;
 
+import com.dianping.cricket.api.mail.MailBuilder;
 import com.dianping.cricket.scheduler.SchedulerConf;
+import com.dianping.cricket.scheduler.rest.util.JobUtil;
 
 public class JarJob extends AbstractJob {
 	private static Logger logger = Logger.getLogger(JarJob.class);
 	public static final String JOB_JAR = "jobJar";
 	private Job job;
+	private JobKey jobKey;
 
 	@Override
 	public int progress() {
-		return -1;
+		return job.progress();
 	}
 
 	@Override
 	public void start(JobExecutionContext context) throws JobExecutionException {
-		String jarFile = context.getMergedJobDataMap().get(JOB_JAR).toString();
-		Path path = Paths.get("").toAbsolutePath();
-		path = path.resolve(Paths.get(SchedulerConf.getConf().getJobJars()));
-		path = path.resolve(Paths.get(jarFile));
-		logger.info("Load job jar file: [" + path + "]!");
+		this.jobKey = context.getJobDetail().getKey();
 		
-		URLClassLoader loader = null;
-		JarFile jar = null;
+		// Get jar file position.
+		String jarFile = context.getMergedJobDataMap().get(JOB_JAR).toString();
+		
+		// Find current root dir.
+		Path path = Paths.get("").toAbsolutePath();
+		
+		// Find job jars dir.
+		path = path.resolve(Paths.get(SchedulerConf.getConf().getJobJars()));
+		
+		// Get job jar path.
+		path = path.resolve(Paths.get(jarFile));
+		
+		logger.info("Load job jar file: [" + path + "]!");
 		try {
-			ClassLoader parent = this.getClass().getClassLoader();
-			loader = new URLClassLoader(new URL[]{path.toUri().toURL()}, parent);
-			String mainCls = jarFile.split("\\.")[0];
-			jar = new JarFile(path.toFile());
-			Enumeration<JarEntry> entries = jar.entries();
-			while (entries.hasMoreElements()) {
-				JarEntry entry = entries.nextElement();
-				if (!entry.isDirectory() && entry.getName().endsWith(mainCls + ".class")) {
-					String fullName = entry.getName().split("\\.")[0];
-					fullName = fullName.replaceAll("/", ".");
-					logger.info("Try to load target class [" + fullName + "]");
-					
-					Class<?> cls = loader.loadClass(fullName);
-					if (!Job.class.isAssignableFrom(cls)) {
-						logger.info("Job entry class is not subclass of Job!");
-						throw new JobExecutionException("This case should never happen! Verify packaged jar & db entry records plz.");
-					}
-					
-					// Create job instance.
-					job = (Job)cls.newInstance();
-					break;
-				}
-			}
+			// Find & load main class of the job entry, and get instance of that class.
+			job = JobUtil.getMainClassEntryInstance(path);
+			
 			job.start(context);
-		} catch (ClassNotFoundException e) {
-			e.printStackTrace();
-			logger.info("Job entry class must can be found on class path!");
-			throw new JobExecutionException(e);
-		} catch (InstantiationException e) {
-			e.printStackTrace();
-			logger.info("Job class must define one no-args constructor!");
-			throw new JobExecutionException(e);
-		} catch (IllegalAccessException e) {
-			e.printStackTrace();
-			logger.info("Job class CAN NOT be accessed!");
-			throw new JobExecutionException(e);
 		} catch (Exception e) {
 			e.printStackTrace();
 			throw new JobExecutionException(e);
-		} finally {
-			if (jar != null) {
-				try {
-					jar.close();
-				} catch (IOException e) {
-					e.printStackTrace();
-				}
-			}
-			if (loader != null) {
-				try {
-					loader.close();
-				} catch (IOException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				}
-			}
 		}
 	}
 
 	@Override
 	public void run(JobExecutionContext context) throws JobExecutionException {
+		// Set up monitor for job interruption.
+		ScheduledExecutorService service = Executors.newSingleThreadScheduledExecutor();
+		
+		// Schedule monitor thread to check interruption update every 5 seconds.
+		service.scheduleAtFixedRate(new Runnable() {
+			public void run() {
+				if (JarJob.this.isInterrupted()) {
+					try {
+						job.interrupt();
+					} catch (UnableToInterruptJobException e) {
+						e.printStackTrace();
+					}
+				}
+			}
+		}, 0, 5, TimeUnit.SECONDS);
+		
 		job.run(context);
+		
+		// Shutdown schedule service.
+		service.shutdownNow();
 	}
 
 	@Override
 	public void end(JobExecutionContext context) throws JobExecutionException {
 		job.end(context);
+	}
+
+	@Override
+	public void done(JobExecutionContext context) throws JobExecutionException {
+		try {
+			MailBuilder.newBuilder().subject("[Job Success]" + jobKey)
+				.recipient("linxiao.teng@dianping.com")
+				.body("job_success", this.getStatus())
+				.build().send();
+			logger.info("Jar job notice email is sent out: [" + jobKey + "]!");
+		} catch (EmailException e) {
+			e.printStackTrace();
+			logger.info("Failed to send out email for Jar job: [" + jobKey + "] due to exception: " + e.getMessage());
+		}
 	}
 }

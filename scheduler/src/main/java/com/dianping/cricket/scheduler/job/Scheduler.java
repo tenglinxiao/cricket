@@ -1,9 +1,6 @@
 package com.dianping.cricket.scheduler.job;
 import org.quartz.SchedulerException;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
-
-import com.dianping.cricket.scheduler.SchedulerLoader;
-import com.dianping.cricket.scheduler.pojo.Job;
 public class Scheduler {
 	public static void main(String args[]) throws SchedulerException, ClassNotFoundException {
 //		org.quartz.Scheduler scheduler = new StdSchedulerFactory().getScheduler();

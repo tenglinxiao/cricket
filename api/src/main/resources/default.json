@@ -5,6 +5,14 @@
 		"cache": {
 			"daemonsPerSection": 1,
 			"enableTTL": false
+		},
+		"mail": {
+			"host": "mail.51ping.com",
+			"port": 25,
+			"username": "ad-data@dianping.com",
+			"password": "midas4DPMDS",
+			"ssl": false,
+			"sender": "DO-NOT-REPLY@dianping.com"
 		}
 	 }
 }

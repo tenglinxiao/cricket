@@ -1,6 +1,7 @@
 package com.dianping.cricket.scheduler;
 
 import org.codehaus.jackson.JsonNode;
+
 import com.dianping.cricket.api.conf.Configurable;
 
 public class SchedulerConf extends Configurable {
@@ -8,6 +9,7 @@ public class SchedulerConf extends Configurable {
 	private static SchedulerConf conf;
 	private String bootShell;
 	private String jobJars;
+	private int daemonFrequency;
 
 	@Override
 	protected String getWatchNode() {
@@ -18,6 +20,7 @@ public class SchedulerConf extends Configurable {
 	protected void parse(JsonNode data) throws Exception {
 		bootShell = getConfValue("bootShell").getTextValue();
 		jobJars = getConfValue("jobJars").getTextValue();
+		daemonFrequency = getConfValue("daemonFrequency").getIntValue();
 	}
 	
 	public String getBootShell() {
@@ -28,13 +31,16 @@ public class SchedulerConf extends Configurable {
 		return jobJars;
 	}
 	
-	public static SchedulerConf getConf() {
-		if (conf == null) {
-			conf = new SchedulerConf();
-		}
-		return conf;
+	public int getDaemonFrequency() {
+		return daemonFrequency;
 	}
 	
-
-
+	public static SchedulerConf getConf() {
+		synchronized (SchedulerConf.class) {
+			if (conf == null) {
+				conf = new SchedulerConf();
+			}
+			return conf;
+		}
+	}
 }

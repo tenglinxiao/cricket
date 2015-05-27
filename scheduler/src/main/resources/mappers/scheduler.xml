@@ -3,22 +3,97 @@
     "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 
 <mapper namespace="scheduler">
-	<select id="findJobs" resultType="com.dianping.cricket.scheduler.pojo.Job">
-		select `id`, `name`, `group`, `description`, `owner`, `schedule`, `main_entry` as mainEntry, `type`, `created_time` as createdTime, `updated_time` as updatedTime 
+	<resultMap type="com.dianping.cricket.scheduler.pojo.Job" id="JobMap">
+		<constructor>
+			<arg column="name" javaType="String"/>
+			<arg column="group" javaType="String"/>
+		</constructor>
+		<id property="id" column="id"/>		
+		<result property="description" column="description"/>
+		<result property="owner" column="owner"/>
+		<result property="schedule" column="schedule"/>
+		<result property="mainEntry" column="main_entry"/>
+		<result property="type" column="type"/>
+		<result property="createdTime" column="created_time"/>
+		<result property="updatedTime" column="updated_time"/>
+	</resultMap>
+	<resultMap type="com.dianping.cricket.scheduler.pojo.JobStatus" id="JobStatusMap">	
+		<result property="status" column="status"/>
+		<result property="recovered" column="recovered"/>
+		<result property="startTime" column="start_time"/>
+		<result property="endTime" column="end_time"/>
+		<association property="job" resultMap="JobMap"/>
+	</resultMap>
+	<select id="findJobs" resultMap="JobMap">
+		select `id`, `name`, `group`, `description`, `owner`, `schedule`, `main_entry`, `type`, `created_time`, `updated_time` 
 		from job
+	</select>
+	<select id="findRecoveredJobs" parameterType="date" resultMap="JobStatusMap">
+		select a.`id` as id, `status`, `recovered`, `start_time`, `end_time`,
+		`name`, `group`, `description`, `owner`, `schedule`, `main_entry`, `type`, a.`created_time` as created_time, a.`updated_time` as updated_time  
+		from job_status a 
+		inner join job b on a.id = b.id
+		where a.status = 'running' and a.start_time &lt; #{startTime}
+	</select>
+	<select id="isExisted" parameterType="com.dianping.cricket.scheduler.pojo.Job" resultType="int">
+		select count(*) from job 
+		where `name` = #{jobKey.name} and `group` = #{jobKey.group}
+	</select>
+	<select id="sla_sle" resultType="hashmap">
+		select a.`id`, a.`name`, a.`group`, count(*) as total,
+			sum(
+				case when unix_timestamp(end_time) - unix_timestamp(start_time) > a.sla 
+			    then 1 
+			    else 0 
+			    end
+			) as total_sla,
+		    sum(
+		    	case when unix_timestamp(end_time) - unix_timestamp(start_time) > a.sle
+			    then 1 
+			    else 0 
+		    	end
+		    ) as total_sle
+		    from job a
+		inner join job_history b on a.id = b.job
+		where status = 'success'
+		group by a.`id`, a.`name`, a.`group`;
+	</select>
+	<select id="findObsoleteJars" resultType="com.dianping.cricket.scheduler.pojo.JobJar">
+		select id, name, stored_name as storedName, created_time as createdTime
+		from job_jar
+		where created_time &lt; date_add(current_timestamp, interval -5 minute)
 	</select>
 	<insert id="createJob" parameterType="com.dianping.cricket.scheduler.pojo.Job" useGeneratedKeys="true" keyProperty="id">
 		insert into job(`id`, `name`, `group`, `description`, `owner`, `schedule`, `main_entry`, `type`) 
-		values(0, #{name}, #{group}, #{description}, #{owner}, #{schedule}, #{mainEntry}, #{type})
+		values(0, #{jobKey.name}, #{jobKey.group}, #{description}, #{owner}, #{schedule}, #{mainEntry}, #{type})
 	</insert>
 	<insert id="createJobStatus" parameterType="com.dianping.cricket.scheduler.pojo.JobStatus">
-		insert into job_status(`id`, `status`, `recovered`, `start_time`, `end_time`) values (#{jobId}, #{status}, #{recovered}, #{startTime}, #{endTime});
+		insert into job_status(`id`, `status`, `recovered`, `start_time`, `end_time`) values (#{job.id}, #{status}, #{recovered}, #{startTime}, #{endTime});
 	</insert>
 	<insert id="logStatus" parameterType="com.dianping.cricket.scheduler.pojo.JobStatus">
-		insert into job_history(`id`, `job`, `status`, `recovered`, `start_time`, `end_time`) values (0, #{jobId}, #{status}, #{recovered}, #{startTime}, #{endTime});
+		insert into job_history(`id`, `job`, `status`, `recovered`, `start_time`, `end_time`) values (0, #{job.id}, #{status}, #{recovered}, #{startTime}, #{endTime});
+	</insert>
+	<insert id="createJobJar" parameterType="hashmap" useGeneratedKeys="true" keyProperty="id">
+		insert into job_jar(`id`, `name`, `stored_name`) values (0, #{name}, #{stored_name});
 	</insert>
 	<update id="updateStatus" parameterType="com.dianping.cricket.scheduler.pojo.Job">
-		update job_status set status = #{status}, start_time = #{startTime}, end_time = #{endTime} 
-		where id = #{jobId}
+		update job_status set status = #{status}, start_time = #{startTime}, end_time = <choose><when test="endTime != null">#{endTime}</when><otherwise>0</otherwise></choose> 
+		where id = #{job.id}
 	</update>
+	<delete id="deleteJob" parameterType="int">
+		delete from job
+		where id = #{jobId}
+	</delete>
+	<delete id="deleteJobStatus" parameterType="int">
+		delete from job_status
+		where id = #{jobId}
+	</delete>
+	<delete id="deleteHistoryStatus" parameterType="int">
+		delete from job_history
+		where job = #{jobId}
+	</delete>
+	<delete id="deleteJobJar" parameterType="string">
+		delete from job_jar
+		where stored_name = #{jarName}
+	</delete>
 </mapper>

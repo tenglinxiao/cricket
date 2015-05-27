@@ -7,8 +7,8 @@ public class JobStatus {
 		OPEN, RUNNING, SUCCESS, FAILURE
 	}
 	
-	// Job id.
-	private int jobId;
+	// Job.
+	private Job job = new Job();
 	// Job start time.
 	private Date startTime;
 	// Job end time.
@@ -21,14 +21,13 @@ public class JobStatus {
 	public JobStatus() {}
 	
 	public JobStatus(int jobId) {
-		this.jobId = jobId;
+		this.job.setId(jobId);
 	}
-	
-	public int getJobId() {
-		return jobId;
+	public Job getJob() {
+		return job;
 	}
-	public void setJobId(int jobId) {
-		this.jobId = jobId;
+	public void setJob(Job job) {
+		this.job = job;
 	}
 	public Date getStartTime() {
 		return startTime;
@@ -53,5 +52,15 @@ public class JobStatus {
 	}
 	public void setRecovered(boolean recovered) {
 		this.recovered = recovered;
+	}
+	public String getTimeCost() {
+		if (endTime == null) {
+			return "--";
+		}
+		long timeCost = (endTime.getTime() - startTime.getTime()) / 1000;
+		int seconds = (int)(timeCost % 60);
+		int hours = (int)(timeCost / 3600);
+		int mins = (int)(timeCost % 3600) / 60;
+		return hours + "hours " + mins + "mins " + seconds + "secs";
 	}
 }

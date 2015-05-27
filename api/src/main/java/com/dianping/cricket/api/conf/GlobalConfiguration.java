@@ -4,6 +4,7 @@ import org.codehaus.jackson.JsonNode;
 
 import com.dianping.cricket.api.cache.CacheConfig;
 import com.dianping.cricket.api.exception.InvalidCaseException;
+import com.dianping.cricket.api.mail.MailConf;
 
 /**
  * Global configuration class for parsing & storing all the config data defined in "global" section. 
@@ -20,6 +21,7 @@ public class GlobalConfiguration extends Configurable {
 	private static GlobalConfiguration conf;
 	private boolean debug;
 	private CacheConfig cacheConf;
+	private MailConf mailConf;
 	
 	private GlobalConfiguration() {}
 	
@@ -37,6 +39,10 @@ public class GlobalConfiguration extends Configurable {
 	
 	public CacheConfig getCacheConf() {
 		return cacheConf;
+	}
+	
+	public MailConf getMailConf() {
+		return mailConf;
 	}
 
 	@Override
@@ -61,6 +67,15 @@ public class GlobalConfiguration extends Configurable {
 		daemonsPerSection = node.getIntValue();
 		
 		cacheConf = CacheConfig.getConfig(daemonsPerSection, enableTTL);
+		
+		
+		MailConf conf = MailConf.getConf();
+		conf.setHost(getConfValue("mail.host").getTextValue());
+		conf.setPort(getConfValue("mail.port").getIntValue());
+		conf.setUsername(getConfValue("mail.username").getTextValue());
+		conf.setPasswd(getConfValue("mail.password").getTextValue());
+		conf.setSsl(getConfValue("mail.ssl").getBooleanValue());
+		conf.setSender(getConfValue("mail.sender").getTextValue());
 	}
 
 	@Override
