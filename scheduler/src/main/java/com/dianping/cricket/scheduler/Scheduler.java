@@ -2,21 +2,23 @@ package com.dianping.cricket.scheduler;
 
 import static org.quartz.CronScheduleBuilder.cronSchedule;
 import static org.quartz.JobBuilder.newJob;
+import static org.quartz.SimpleScheduleBuilder.simpleSchedule;
 import static org.quartz.TriggerBuilder.newTrigger;
-import static org.quartz.SimpleScheduleBuilder.*;
 
 import java.util.ArrayList;
 import java.util.List;
+
+import javax.servlet.ServletContext;
 
 import org.apache.log4j.Logger;
 import org.quartz.JobBuilder;
 import org.quartz.JobDetail;
 import org.quartz.JobExecutionContext;
 import org.quartz.SchedulerException;
-import org.quartz.SimpleScheduleBuilder;
 import org.quartz.Trigger;
 import org.quartz.TriggerBuilder;
 import org.quartz.impl.StdSchedulerFactory;
+import org.springframework.web.context.ServletContextAware;
 
 import com.dianping.cricket.scheduler.job.AbstractJob;
 import com.dianping.cricket.scheduler.job.DaemonJob;
@@ -27,7 +29,7 @@ import com.dianping.cricket.scheduler.pojo.JobStatus;
 import com.dianping.cricket.scheduler.rest.exceptions.SchedulerJobNotFoundException;
 import com.dianping.cricket.scheduler.rest.exceptions.SchedulerPersistenceException;
 
-public class Scheduler {
+public class Scheduler implements ServletContextAware {
 	public static final String RECOVERY_GROUP = "recovery";
 	private static Logger logger = Logger.getLogger(Scheduler.class);
 	// Scheduler loader.
@@ -206,5 +208,11 @@ public class Scheduler {
 			e.printStackTrace();
 			logger.error("Exception when shutdown the scheduler: [" + e.getMessage() + "]");
 		}
+	}
+
+	@Override
+	public void setServletContext(ServletContext servletContext) {
+		// Register the root dir for the project.
+		SchedulerConf.getConf().setRoot(servletContext.getRealPath("/"));
 	}
 }

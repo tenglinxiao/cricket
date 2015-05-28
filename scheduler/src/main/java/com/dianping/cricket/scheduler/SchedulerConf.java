@@ -9,6 +9,7 @@ public class SchedulerConf extends Configurable {
 	private static SchedulerConf conf;
 	private String bootShell;
 	private String jobJars;
+	private String root;
 	private int daemonFrequency;
 
 	@Override
@@ -29,6 +30,14 @@ public class SchedulerConf extends Configurable {
 	
 	public String getJobJars() {
 		return jobJars;
+	}
+	
+	public String getRoot() {
+		return root;
+	}
+	
+	public void setRoot(String root) {
+		this.root = root;
 	}
 	
 	public int getDaemonFrequency() {

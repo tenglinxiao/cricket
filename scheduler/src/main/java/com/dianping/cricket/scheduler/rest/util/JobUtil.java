@@ -30,7 +30,7 @@ public class JobUtil {
 		if (jobJarsPath.isAbsolute()) {
 			return jobJarsPath.resolve(jobJarName);
 		} else {
-			return Paths.get("").toAbsolutePath().resolve(jobJarsPath).resolve(jobJarName);
+			return Paths.get(SchedulerConf.getConf().getRoot()).resolve(jobJarsPath).resolve(jobJarName);
 		}
 	}
 	

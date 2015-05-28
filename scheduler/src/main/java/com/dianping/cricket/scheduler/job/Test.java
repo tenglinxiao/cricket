@@ -1,11 +1,14 @@
 package com.dianping.cricket.scheduler.job;
 
 import java.io.IOException;
+import java.nio.file.Paths;
 
 import javax.ws.rs.core.MediaType;
 
 import org.quartz.JobExecutionException;
 import org.quartz.JobKey;
+
+import com.dianping.cricket.scheduler.rest.util.JobUtil;
 
 public class Test {
 	public Test() {}
@@ -73,6 +76,8 @@ public class Test {
 		//System.out.println(JobUtil.appendTimestamp(Paths.get("test.append.jar")));
 		
 		System.out.println(new JobKey(""));
+		
+		System.out.println(Paths.get("").toAbsolutePath());
 	}
 
 }
