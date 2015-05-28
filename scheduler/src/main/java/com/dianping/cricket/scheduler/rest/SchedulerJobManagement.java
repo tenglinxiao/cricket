@@ -83,8 +83,8 @@ public class SchedulerJobManagement {
 	@Path("upload")
 	@Consumes(MediaType.MULTIPART_FORM_DATA)
 	public JsonResult uploadJar(@FormDataParam("file") InputStream in, @FormDataParam("file") FormDataContentDisposition disposition) {
-		java.nio.file.Path path = Paths.get(SchedulerConf.getConf().getJobJars());
-		path = path.resolve(disposition.getFileName());
+		java.nio.file.Path path = JobUtil.getJobJarPath(disposition.getFileName());
+
 		if (!JobUtil.isJarFile(path)) {
 			return ResultWrapper.wrap(Status.BAD_REQUEST, "Uploaded file is constrained to jar file only!");
 		}
