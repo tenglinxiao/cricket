@@ -4,29 +4,29 @@
 	"scheduler": {
 		"bootShell": "/Users/tenglinxiao/Documents/cricket/scheduler/src/main/webapp/bin/run.sh",
 		"jobJars": "/Users/tenglinxiao/Documents/cricket/scheduler/src/main/webapp/jobs",
-		"daemonFrequency": 300
-	},
-	
-	# db settings option
-	"db_settings": {
-	    # dbs settings.
-	    "dbs": [{
-	    	# db id.
-	    	"id": "scheduler",
-	    	
-	    	# specified host name.
-	        "host": "localhost",
-	        
-	        "port": 3306,
-	        
-	        # specified username.
-		    "username": "root",
-		    
-		    # specified password.
-		    "password": "angelfish",
-		    
-		    # specified db name.
-	        "name": "scheduler"
-	    }]
+		"daemonFrequency": 300,
+		
+		# db settings option
+		"db_settings": {
+		    "dbs": [{
+		    	# db id.
+		    	"id": "scheduler",
+		    	
+		    	# specified host name.
+		        "host": "localhost",
+		        
+		        # db port.
+		        "port": 3306,
+		        
+		        # specified username.
+			    "username": "root",
+			    
+			    # specified password.
+			    "password": "angelfish",
+			    
+			    # specified db name.
+		        "name": "scheduler"
+		    }]
+		}
     }
 }

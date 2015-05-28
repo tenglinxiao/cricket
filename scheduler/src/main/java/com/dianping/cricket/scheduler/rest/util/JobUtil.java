@@ -13,12 +13,26 @@ import java.util.jar.JarFile;
 import org.apache.log4j.Logger;
 import org.quartz.SchedulerException;
 
+import com.dianping.cricket.scheduler.SchedulerConf;
 import com.dianping.cricket.scheduler.job.Job;
 import com.dianping.cricket.scheduler.rest.exceptions.SchedulerInvalidJobJarException;
 
 public class JobUtil {
 	private static Logger logger = Logger.getLogger(JobUtil.class);
 	private static String TIMESTAMP = "[%d]";
+	
+	public static Path getJobJarPath(String jobJarName) {
+		// Find the root path in the config.
+		Path jobJarsPath = Paths.get(SchedulerConf.getConf().getJobJars());
+		
+		// If the root path is absolute, then append the jar name for path,
+		// otherwise use the current dir as root path.
+		if (jobJarsPath.isAbsolute()) {
+			return jobJarsPath.resolve(jobJarName);
+		} else {
+			return Paths.get("").toAbsolutePath().resolve(jobJarsPath).resolve(jobJarName);
+		}
+	}
 	
 	public static Job getMainClassEntryInstance(Path jarFile) throws SchedulerException {
 		// Find the class that implements Job interface.

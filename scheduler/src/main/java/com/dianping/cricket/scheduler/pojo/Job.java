@@ -134,12 +134,8 @@ public class Job {
 		}
 		
 		if (type == Type.JAR_JOB) {
-			Path path = Paths.get(SchedulerConf.getConf().getJobJars());
-			if (!path.isAbsolute()) {
-				path = Paths.get("").toAbsolutePath();
-				path = path.resolve(Paths.get(SchedulerConf.getConf().getJobJars()));
-			}
-			path = path.resolve(Paths.get(mainEntry));
+			Path path = JobUtil.getJobJarPath(this.mainEntry);
+			
 			if(!path.toFile().exists()) {
 				throw new SchedulerInvalidJobDefinitionException("Main entry jar job CAN NOT be found on path ["+ path + "]!");
 			}

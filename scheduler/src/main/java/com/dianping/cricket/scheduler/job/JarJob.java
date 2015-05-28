@@ -33,16 +33,10 @@ public class JarJob extends AbstractJob {
 		this.jobKey = context.getJobDetail().getKey();
 		
 		// Get jar file position.
-		String jarFile = context.getMergedJobDataMap().get(JOB_JAR).toString();
+		String jobJarName = context.getMergedJobDataMap().get(JOB_JAR).toString();
 		
-		// Find current root dir.
-		Path path = Paths.get("").toAbsolutePath();
-		
-		// Find job jars dir.
-		path = path.resolve(Paths.get(SchedulerConf.getConf().getJobJars()));
-		
-		// Get job jar path.
-		path = path.resolve(Paths.get(jarFile));
+		// Find job jar path.
+		Path path = JobUtil.getJobJarPath(jobJarName);
 		
 		logger.info("Load job jar file: [" + path + "]!");
 		try {
