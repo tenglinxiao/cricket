@@ -126,6 +126,9 @@ public class Scheduler implements ServletContextAware {
 			// Pass recovered value to let job instance know whether it's a recovered job.
 			jobBuilder.usingJobData(AbstractJob.RECOVERED, recovered);
 			
+			// Pass mail for notification.
+			jobBuilder.usingJobData(AbstractJob.MAIL, job.getMail());
+			
 			// If it is deployed as recovered job, then set the group name to 'recovery'.
 			if (recovered) {
 				jobBuilder.withIdentity(job.getJobKey().toString(), RECOVERY_GROUP);

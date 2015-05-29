@@ -3,7 +3,8 @@
 {	
 	"scheduler": {
 		"bootShell": "/Users/tenglinxiao/Documents/cricket/scheduler/src/main/webapp/bin/run.sh",
-		"jobJars": "jobs",
+		"jobShells": "/Users/tenglinxiao/Documents/cricket/scheduler/src/main/webapp/shells",
+		"jobJars": "/Users/tenglinxiao/Documents/cricket/scheduler/src/main/webapp/jobs",
 		"daemonFrequency": 300,
 		
 		# db settings option

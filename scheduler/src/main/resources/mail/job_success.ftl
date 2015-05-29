@@ -12,7 +12,7 @@
 	.signature {
 		font-size: 14px;
 		font-weight: bold;
-		padding-left: 80%;
+		margin-left: 80%;
 	}
 	table {
 		width: 500px;	
@@ -27,33 +27,33 @@
 	}
 </style>
 <body>
-<div>
-<p class="title">
+<div style="font-size: 14px;">
+<div style="font-size: 16px; font-weight: bold; text-align: center;">
 	Job Success
-</p>
-<p class="msg">
-	Job [${job.jobKey.name}, ${job.jobKey.group}] runs successfully within the schedule at ${startTime?datetime}.
-	<table>
+</div>
+<div class="msg">
+	<p style="margin-left: 10px;">Job [ ${job.jobKey.group}.${job.jobKey.name}] runs successfully within the schedule at ${startTime?datetime}.</p>
+	<table style="margin-left: 10px; width: 500px; border: 1px dashed #515151; border-spacing: 0; border-collapse: collapse;">
 		<tr>
 		<th>Start Time</th>
 		<th>End Time</th>
 		<th>Time Cost</th>
 		</tr>
 		<tr>
-		<td>${startTime?datetime}</td>
-		<td>
+		<td style="text-align: center;">${startTime?datetime}</td>
+		<td style="text-align: center;">
 		<#if endTime??>
 			${endTime?datetime}
 		<#else>
 			--
 		</#if>
 		</td>
-		<td>${timeCost}</td>
+		<td style="text-align: center;">${timeCost}</td>
 		</tr>
 	</table>
-</p>
-<p class="signature">
-	midas data team
-</p>
+</div>
+<div>
+	<p style="font-size: 14px; font-weight: bold; margin-left: 70%;">midas data team</p>
+</div>
 </div>
 </body>

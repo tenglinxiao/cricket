@@ -9,6 +9,7 @@ public class SchedulerConf extends Configurable {
 	private static SchedulerConf conf;
 	private String bootShell;
 	private String jobJars;
+	private String jobShells;
 	private String root;
 	private int daemonFrequency;
 
@@ -20,6 +21,7 @@ public class SchedulerConf extends Configurable {
 	@Override
 	protected void parse(JsonNode data) throws Exception {
 		bootShell = getConfValue("bootShell").getTextValue();
+		jobShells = getConfValue("jobShells").getTextValue();
 		jobJars = getConfValue("jobJars").getTextValue();
 		daemonFrequency = getConfValue("daemonFrequency").getIntValue();
 	}
@@ -30,6 +32,10 @@ public class SchedulerConf extends Configurable {
 	
 	public String getJobJars() {
 		return jobJars;
+	}
+	
+	public String getJobShells() {
+		return jobShells;
 	}
 	
 	public String getRoot() {

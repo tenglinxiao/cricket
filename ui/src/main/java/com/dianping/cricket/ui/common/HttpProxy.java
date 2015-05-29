@@ -1,8 +1,8 @@
 package com.dianping.cricket.ui.common;
 
-import org.apache.http.HttpRequest;
+import javax.servlet.http.HttpServletRequest;
+
 import org.apache.http.HttpResponse;
-import org.codehaus.jackson.JsonNode;
 
 /**
  * Proxy for forward request to target host.
@@ -10,17 +10,16 @@ import org.codehaus.jackson.JsonNode;
  * @since 0.0.1
  */
 public interface HttpProxy {
-	
 	// Issue get request.
-	public JsonNode get(HttpRequest request);
+	public HttpResponse get(HttpServletRequest request);
 	
 	// Issue post request.
-	public HttpResponse post(HttpRequest request);
+	public HttpResponse post(HttpServletRequest request);
 	
 	// Issue put request.
-	public HttpResponse put(HttpRequest request);
+	public HttpResponse put(HttpServletRequest request);
 	
 	// Issue delete request.
-	public HttpResponse delete(HttpRequest request);
+	public HttpResponse delete(HttpServletRequest request);
 
 }

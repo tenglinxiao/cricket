@@ -7,7 +7,17 @@
 	<version>1.0-SNAPSHOT</version>
 	<name>ui Maven Webapp</name>
 	<url>http://maven.apache.org</url>
+	<parent>
+		<groupId>com.dianping.cricket</groupId>
+		<artifactId>cricket</artifactId>
+		<version>1.0-SNAPSHOT</version>
+	</parent>
 	<dependencies>
+		<dependency>
+			<groupId>com.dianping.cricket.api</groupId>
+			<artifactId>api</artifactId>
+			<version>${parent.version}</version>
+		</dependency>
 		<dependency>
 			<groupId>org.codehaus.jackson</groupId>
 			<artifactId>jackson-mapper-asl</artifactId>

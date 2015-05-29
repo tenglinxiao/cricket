@@ -23,9 +23,13 @@ public class Job {
 	private JobKey jobKey;
 	private String description;
 	private String owner;
+	private String mail;
 	private String schedule;
 	private String mainEntry;
+	private int sla;
+	private int sle;
 	private Type type = Type.SHELL_JOB;
+	
 	private Date createdTime;
 	private Date updatedTime;
 	public Job() {
@@ -67,6 +71,24 @@ public class Job {
 	}
 	public void setOwner(String owner) {
 		this.owner = owner;
+	}
+	public String getMail() {
+		return mail;
+	}
+	public void setMail(String mail) {
+		this.mail = mail;
+	}
+	public int getSla() {
+		return sla;
+	}
+	public void setSla(int sla) {
+		this.sla = sla;
+	}
+	public int getSle() {
+		return sle;
+	}
+	public void setSle(int sle) {
+		this.sle = sle;
 	}
 	public String getSchedule() {
 		return schedule;
@@ -127,6 +149,10 @@ public class Job {
 		
 		if (owner == null || owner.equals("")) {
 			throw new SchedulerInvalidJobDefinitionException("owner CAN NOT be null or empty!");
+		}
+		
+		if (mail == null || mail.equals("")) {
+			throw new SchedulerInvalidJobDefinitionException("mail CAN NOT be null or empty!");
 		}
 		
 		if (schedule == null || schedule.equals("")) {

@@ -12,6 +12,7 @@ import com.dianping.cricket.dal.SessionStore;
 import com.dianping.cricket.scheduler.pojo.Job;
 import com.dianping.cricket.scheduler.pojo.JobJar;
 import com.dianping.cricket.scheduler.pojo.JobStatus;
+import com.dianping.cricket.scheduler.pojo.Recipient;
 import com.dianping.cricket.scheduler.rest.exceptions.SchedulerPersistenceException;
 
 public class SchedulerLoader {
@@ -198,6 +199,52 @@ public class SchedulerLoader {
 		try {
 			session = factory.openSession();
 			return session.selectList("scheduler.findObsoleteJars");
+		} catch (Exception e) {
+			e.printStackTrace();
+			throw new SchedulerPersistenceException(e);
+		} finally {
+			if (session != null) {
+				session.close();
+			}
+		}
+	}
+	
+	public boolean createRecipient(Recipient recipient) throws SchedulerPersistenceException {
+		SqlSession session = null;
+		try {
+			session = factory.openSession();
+			session.insert("scheduler.createRecipient", recipient);
+			return true;
+		} catch (Exception e) {
+			e.printStackTrace();
+			throw new SchedulerPersistenceException(e);
+		} finally {
+			if (session != null) {
+				session.close();
+			}
+		}
+	}
+	
+	public List<Recipient> getRecipients(int id) throws SchedulerPersistenceException {
+		SqlSession session = null;
+		try {
+			session = factory.openSession();
+			return session.selectList("scheduler.findRecipients", id);
+		} catch (Exception e) {
+			e.printStackTrace();
+			throw new SchedulerPersistenceException(e);
+		} finally {
+			if (session != null) {
+				session.close();
+			}
+		}
+	}
+	
+	public boolean deleteRecipient(Recipient recipient) throws SchedulerPersistenceException {
+		SqlSession session = null;
+		try {
+			session = factory.openSession();
+			return session.delete("scheduler.deleteRecipient", recipient) == 1;
 		} catch (Exception e) {
 			e.printStackTrace();
 			throw new SchedulerPersistenceException(e);

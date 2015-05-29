@@ -16,6 +16,7 @@ import com.dianping.cricket.scheduler.rest.exceptions.SchedulerPersistenceExcept
 
 public abstract class AbstractJob implements InterruptableJob, TimeAware, Job {
 	public static final String JOB_ID = "jobId";
+	public static final String MAIL = "mail";
 	public static final String RECOVERED = "recovered";
 	private static Logger logger = Logger.getLogger(AbstractJob.class);
 	private JobStatus status = new JobStatus();
@@ -94,6 +95,11 @@ public abstract class AbstractJob implements InterruptableJob, TimeAware, Job {
 	// Automatically called by scheduler.
 	public void setJobId(int jobId) {
 		this.status.getJob().setId(jobId);
+	}
+	
+	// Automatically called by scheduler.
+	public void setMail(String mail) {
+		this.status.getJob().setMail(mail);
 	}
 	
 	public void setRecovered(boolean recovered) {

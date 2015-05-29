@@ -17,6 +17,9 @@ public class JobStatus {
 	private JobStatus.Status status = Status.OPEN;
 	// Whether job is recovered.
 	private boolean recovered;
+
+	private Date createdTime;
+	private Date updatedTime;
 	
 	public JobStatus() {}
 	
@@ -52,6 +55,18 @@ public class JobStatus {
 	}
 	public void setRecovered(boolean recovered) {
 		this.recovered = recovered;
+	}
+	public Date getCreatedTime() {
+		return createdTime;
+	}
+	public void setCreatedTime(Date createdTime) {
+		this.createdTime = createdTime;
+	}
+	public Date getUpdatedTime() {
+		return updatedTime;
+	}
+	public void setUpdatedTime(Date updatedTime) {
+		this.updatedTime = updatedTime;
 	}
 	public String getTimeCost() {
 		if (endTime == null) {

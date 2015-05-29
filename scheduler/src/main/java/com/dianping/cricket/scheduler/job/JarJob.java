@@ -1,7 +1,7 @@
 package com.dianping.cricket.scheduler.job;
 
 import java.nio.file.Path;
-import java.nio.file.Paths;
+import java.util.List;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
@@ -13,8 +13,9 @@ import org.quartz.JobExecutionException;
 import org.quartz.JobKey;
 import org.quartz.UnableToInterruptJobException;
 
-import com.dianping.cricket.api.mail.MailBuilder;
-import com.dianping.cricket.scheduler.SchedulerConf;
+import com.dianping.cricket.scheduler.SchedulerLoader;
+import com.dianping.cricket.scheduler.pojo.Recipient;
+import com.dianping.cricket.scheduler.rest.exceptions.SchedulerPersistenceException;
 import com.dianping.cricket.scheduler.rest.util.JobUtil;
 
 public class JarJob extends AbstractJob {
@@ -82,12 +83,11 @@ public class JarJob extends AbstractJob {
 	@Override
 	public void done(JobExecutionContext context) throws JobExecutionException {
 		try {
-			MailBuilder.newBuilder().subject("[Job Success]" + jobKey)
-				.recipient("linxiao.teng@dianping.com")
-				.body("job_success", this.getStatus())
-				.build().send();
+			List<Recipient> recipients = SchedulerLoader.getLoader().getRecipients(this.getStatus().getJob().getId());
+			recipients.add(Recipient.fakeRecipient(this.getStatus().getJob().getMail()));
+			JobUtil.sendMail(recipients, this.getStatus());
 			logger.info("Jar job notice email is sent out: [" + jobKey + "]!");
-		} catch (EmailException e) {
+		} catch (EmailException | SchedulerPersistenceException e) {
 			e.printStackTrace();
 			logger.info("Failed to send out email for Jar job: [" + jobKey + "] due to exception: " + e.getMessage());
 		}

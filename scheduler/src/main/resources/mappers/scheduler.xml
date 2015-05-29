@@ -11,9 +11,12 @@
 		<id property="id" column="id"/>		
 		<result property="description" column="description"/>
 		<result property="owner" column="owner"/>
+		<result property="mail" column="mail"/>
 		<result property="schedule" column="schedule"/>
 		<result property="mainEntry" column="main_entry"/>
 		<result property="type" column="type"/>
+		<result property="sla" column="sla"/>
+		<result property="sle" column="sle"/>
 		<result property="createdTime" column="created_time"/>
 		<result property="updatedTime" column="updated_time"/>
 	</resultMap>
@@ -25,12 +28,12 @@
 		<association property="job" resultMap="JobMap"/>
 	</resultMap>
 	<select id="findJobs" resultMap="JobMap">
-		select `id`, `name`, `group`, `description`, `owner`, `schedule`, `main_entry`, `type`, `created_time`, `updated_time` 
+		select `id`, `name`, `group`, `description`, `owner`, `mail`, `schedule`, `main_entry`, `type`, `sla`, `sle`, `created_time`, `updated_time` 
 		from job
 	</select>
 	<select id="findRecoveredJobs" parameterType="date" resultMap="JobStatusMap">
-		select a.`id` as id, `status`, `recovered`, `start_time`, `end_time`,
-		`name`, `group`, `description`, `owner`, `schedule`, `main_entry`, `type`, a.`created_time` as created_time, a.`updated_time` as updated_time  
+		select a.`id` as id, `status`, `recovered`, `start_time`, case when `end_time` = '0000-00-00 00:00:00' then null else `end_time` end as `end_time`,
+		`name`, `group`, `description`, `owner`, `mail`, `schedule`, `main_entry`, `type`, `sla`, `sle`, a.`created_time` as created_time, a.`updated_time` as updated_time  
 		from job_status a 
 		inner join job b on a.id = b.id
 		where a.status = 'running' and a.start_time &lt; #{startTime}
@@ -63,18 +66,27 @@
 		from job_jar
 		where created_time &lt; date_add(current_timestamp, interval -5 minute)
 	</select>
+	<select id="findRecipients" resultType="com.dianping.cricket.scheduler.pojo.Recipient">
+		select id, recipient, mail, created_time as createdTime
+		from job_mail_recipient
+		where id = #{job.id};
+	</select>
 	<insert id="createJob" parameterType="com.dianping.cricket.scheduler.pojo.Job" useGeneratedKeys="true" keyProperty="id">
-		insert into job(`id`, `name`, `group`, `description`, `owner`, `schedule`, `main_entry`, `type`) 
-		values(0, #{jobKey.name}, #{jobKey.group}, #{description}, #{owner}, #{schedule}, #{mainEntry}, #{type})
+		insert into job(`id`, `name`, `group`, `description`, `owner`, `mail`, `schedule`, `main_entry`, `type`, `sla`, `sle`, `created_time`, `updated_time`) 
+		values(0, #{jobKey.name}, #{jobKey.group}, #{description}, #{owner}, #{mail}, #{schedule}, #{mainEntry}, #{type}, #{sla}, #{sle}, current_timestamp, current_timestamp)
 	</insert>
 	<insert id="createJobStatus" parameterType="com.dianping.cricket.scheduler.pojo.JobStatus">
-		insert into job_status(`id`, `status`, `recovered`, `start_time`, `end_time`) values (#{job.id}, #{status}, #{recovered}, #{startTime}, #{endTime});
+		insert into job_status(`id`, `status`, `recovered`, `start_time`, `end_time`, `created_time`, `updated_time`) 
+		values (#{job.id}, #{status}, #{recovered}, #{startTime}, #{endTime}, current_timestamp, current_timestamp);
 	</insert>
 	<insert id="logStatus" parameterType="com.dianping.cricket.scheduler.pojo.JobStatus">
 		insert into job_history(`id`, `job`, `status`, `recovered`, `start_time`, `end_time`) values (0, #{job.id}, #{status}, #{recovered}, #{startTime}, #{endTime});
 	</insert>
 	<insert id="createJobJar" parameterType="hashmap" useGeneratedKeys="true" keyProperty="id">
 		insert into job_jar(`id`, `name`, `stored_name`) values (0, #{name}, #{stored_name});
+	</insert>
+	<insert id="createRecipient" parameterType="com.dianping.cricket.scheduler.pojo.Recipient">
+		insert into job_mail_recipient(`id`, `recipient`, `mail`) values (#{job.id}, #{recipient}, #{mail});
 	</insert>
 	<update id="updateStatus" parameterType="com.dianping.cricket.scheduler.pojo.Job">
 		update job_status set status = #{status}, start_time = #{startTime}, end_time = <choose><when test="endTime != null">#{endTime}</when><otherwise>0</otherwise></choose> 
@@ -95,5 +107,9 @@
 	<delete id="deleteJobJar" parameterType="string">
 		delete from job_jar
 		where stored_name = #{jarName}
+	</delete>
+	<delete id="deleteRecipient" parameterType="com.dianping.cricket.scheduler.pojo.Recipient">
+		delete from job_mail_recipient
+		where id = #{job.id} and mail = #{mail}
 	</delete>
 </mapper>

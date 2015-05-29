@@ -3,7 +3,6 @@ package com.dianping.cricket.scheduler.rest;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.nio.file.Paths;
 import java.util.Map;
 
 import javax.ws.rs.Consumes;
@@ -20,9 +19,9 @@ import org.quartz.SchedulerException;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import com.dianping.cricket.scheduler.Scheduler;
-import com.dianping.cricket.scheduler.SchedulerConf;
 import com.dianping.cricket.scheduler.SchedulerLoader;
 import com.dianping.cricket.scheduler.pojo.Job;
+import com.dianping.cricket.scheduler.pojo.Recipient;
 import com.dianping.cricket.scheduler.rest.exceptions.SchedulerInvalidJobDefinitionException;
 import com.dianping.cricket.scheduler.rest.exceptions.SchedulerInvalidJobJarException;
 import com.dianping.cricket.scheduler.rest.exceptions.SchedulerJobNotFoundException;
@@ -40,7 +39,7 @@ public class SchedulerJobManagement {
 	private Scheduler scheduler;
 	
 	@POST
-	@Path("create")
+	@Path("createJob")
 	@Consumes(MediaType.APPLICATION_JSON)
 	public JsonResult createJob(Job job) {
 		try {
@@ -80,7 +79,7 @@ public class SchedulerJobManagement {
 	}
 	
 	@POST
-	@Path("upload")
+	@Path("uploadJar")
 	@Consumes(MediaType.MULTIPART_FORM_DATA)
 	public JsonResult uploadJar(@FormDataParam("file") InputStream in, @FormDataParam("file") FormDataContentDisposition disposition) {
 		java.nio.file.Path path = JobUtil.getJobJarPath(disposition.getFileName());
@@ -118,7 +117,7 @@ public class SchedulerJobManagement {
 	}
 	
 	@POST
-	@Path("delete")
+	@Path("deleteJob")
 	@Consumes(MediaType.APPLICATION_JSON)
 	public JsonResult deleteJob(int jobId) {
 		try {
@@ -134,8 +133,36 @@ public class SchedulerJobManagement {
 		} catch (SchedulerPersistenceException e) {
 			e.printStackTrace();
 			logger.error("Failed to delete job from db: [" + e.getMessage() + "]!");
-			return ResultWrapper.wrap(Status.NOT_FOUND, "Failed to communicate to db to delete the job!");
+			return ResultWrapper.wrap(Status.INTERNAL_SERVER_ERROR, "Failed to communicate to db to delete the job!");
 		} 
+	}
+	
+	@POST
+	@Path("createRecipient")
+	@Consumes(MediaType.APPLICATION_JSON)
+	public JsonResult createRecipient(Recipient recipient) {
+		try {
+			SchedulerLoader.getLoader().createRecipient(recipient);
+			return ResultWrapper.wrap(true);
+		} catch (SchedulerPersistenceException e) {
+			e.printStackTrace();
+			logger.error("Failed to create recipient: [" + e.getMessage() + "]!");
+			return ResultWrapper.wrap(Status.INTERNAL_SERVER_ERROR, "Failed to communicate to db to create recipient");
+		}
+	}
+	
+	@POST
+	@Path("deleteRecipient")
+	@Consumes(MediaType.APPLICATION_JSON)
+	public JsonResult deleteRecipient(Recipient recipient) {
+		try {
+			SchedulerLoader.getLoader().deleteRecipient(recipient);
+			return ResultWrapper.wrap(true);
+		} catch (SchedulerPersistenceException e) {
+			e.printStackTrace();
+			logger.error("Failed to delete recipient: [" + e.getMessage() + "]!");
+			return ResultWrapper.wrap(Status.INTERNAL_SERVER_ERROR, "Failed to communicate to db to delete recipient");
+		}
 	}
 
 }

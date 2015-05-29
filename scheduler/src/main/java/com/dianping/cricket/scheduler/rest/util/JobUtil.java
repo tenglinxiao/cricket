@@ -7,14 +7,19 @@ import java.net.URLClassLoader;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Enumeration;
+import java.util.List;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
 
+import org.apache.commons.mail.EmailException;
 import org.apache.log4j.Logger;
 import org.quartz.SchedulerException;
 
+import com.dianping.cricket.api.mail.MailBuilder;
 import com.dianping.cricket.scheduler.SchedulerConf;
 import com.dianping.cricket.scheduler.job.Job;
+import com.dianping.cricket.scheduler.pojo.JobStatus;
+import com.dianping.cricket.scheduler.pojo.Recipient;
 import com.dianping.cricket.scheduler.rest.exceptions.SchedulerInvalidJobJarException;
 
 public class JobUtil {
@@ -22,15 +27,41 @@ public class JobUtil {
 	private static String TIMESTAMP = "[%d]";
 	
 	public static Path getJobJarPath(String jobJarName) {
-		// Find the root path in the config.
+		// Find the jars path in the config.
 		Path jobJarsPath = Paths.get(SchedulerConf.getConf().getJobJars());
 		
-		// If the root path is absolute, then append the jar name for path,
+		// If the path is absolute, then append the jar name for path,
 		// otherwise use the current dir as root path.
 		if (jobJarsPath.isAbsolute()) {
 			return jobJarsPath.resolve(jobJarName);
 		} else {
 			return Paths.get(SchedulerConf.getConf().getRoot()).resolve(jobJarsPath).resolve(jobJarName);
+		}
+	}
+	
+	public static Path getBootShellPath() {
+		// Find the shell path in the config.
+		Path shellPath = Paths.get(SchedulerConf.getConf().getBootShell());
+		
+		// If the path is absolute, then append the shell name for path,
+		// otherwise use the current dir as root path.
+		if (shellPath.isAbsolute()) {
+			return shellPath;
+		} else {
+			return Paths.get(SchedulerConf.getConf().getRoot()).resolve(shellPath);
+		}
+	}
+	
+	public static Path getJobShell(String jobShellName) {
+		// Find the job shells path in the config.
+		Path jobShells = Paths.get(SchedulerConf.getConf().getJobShells());
+		
+		// If the path is absolute, then append the shell name for path,
+		// otherwise use the current dir as root path.
+		if (jobShells.isAbsolute()) {
+			return jobShells.resolve(jobShellName);
+		} else {
+			return Paths.get(SchedulerConf.getConf().getRoot()).resolve(jobShells).resolve(jobShellName);
 		}
 	}
 	
@@ -147,6 +178,17 @@ public class JobUtil {
 			return true;
 		}
 		return false;
+	}
+	
+	
+	public static void sendMail(List<Recipient> recipients, JobStatus status) throws EmailException {
+		MailBuilder builder = MailBuilder.newBuilder()
+				.subject("[Job Success]" + status.getJob().getJobKey())
+				.body("job_success", status);
+		for (Recipient recipient : recipients) {
+			builder.recipient(recipient.getMail());
+		}	
+		builder.build().send();
 	}
 
 }

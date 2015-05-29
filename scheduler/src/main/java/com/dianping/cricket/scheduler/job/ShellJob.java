@@ -4,6 +4,7 @@ import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.List;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
@@ -16,6 +17,10 @@ import org.quartz.JobKey;
 
 import com.dianping.cricket.api.mail.MailBuilder;
 import com.dianping.cricket.scheduler.SchedulerConf;
+import com.dianping.cricket.scheduler.SchedulerLoader;
+import com.dianping.cricket.scheduler.pojo.Recipient;
+import com.dianping.cricket.scheduler.rest.exceptions.SchedulerPersistenceException;
+import com.dianping.cricket.scheduler.rest.util.JobUtil;
 
 public class ShellJob extends AbstractJob {
 	private static Logger logger = Logger.getLogger(ShellJob.class);
@@ -36,20 +41,20 @@ public class ShellJob extends AbstractJob {
 
 	@Override
 	public void run(JobExecutionContext context) throws JobExecutionException {
-		// Compose the path that boots the shell job.
-		Path path = Paths.get(SchedulerConf.getConf().getBootShell());
-		if (!path.isAbsolute()) {
-			Paths.get("").toAbsolutePath();
-			path = path.resolve(Paths.get(SchedulerConf.getConf().getBootShell()));
-		}
-		logger.info("Kick off shell job with command: [" + path + " " + context.getMergedJobDataMap().get(MAIN_SHELL) + "]!");
+		// Compose the boot shell path.
+		Path boot = JobUtil.getBootShellPath();
 		
-		if (!path.toFile().exists()) {
+		// Get Job shell path.
+		Path shell = JobUtil.getJobShell(context.getMergedJobDataMap().get(MAIN_SHELL).toString());
+
+		logger.info("Kick off shell job with command: [" + boot + " " + shell + "]!");
+		
+		if (!shell.toFile().exists()) {
 			throw new JobExecutionException("Boot shell CAN NOT be found!");
 		}
 		
 		// Builder to kick off the job
-		ProcessBuilder builder = new ProcessBuilder(path.toString(), context.getMergedJobDataMap().get(MAIN_SHELL).toString());
+		ProcessBuilder builder = new ProcessBuilder(boot.toString(), shell.toString());
 		try {
 			final Process process = builder.start();
 			
@@ -90,12 +95,11 @@ public class ShellJob extends AbstractJob {
 	@Override
 	public void done(JobExecutionContext context) throws JobExecutionException {
 		try {
-			MailBuilder.newBuilder().subject("[Job Success]" + jobKey)
-				.recipient("linxiao.teng@dianping.com")
-				.body("job_success", this.getStatus())
-				.build().send();
+			List<Recipient> recipients = SchedulerLoader.getLoader().getRecipients(this.getStatus().getJob().getId());
+			recipients.add(Recipient.fakeRecipient(this.getStatus().getJob().getMail()));
+			JobUtil.sendMail(recipients, this.getStatus());
 			logger.info("Shell job notice email is sent out: [" + jobKey+ "]!");
-		} catch (EmailException e) {
+		} catch (EmailException | SchedulerPersistenceException e) {
 			e.printStackTrace();
 			logger.info("Failed to send out email for Shell job: [" + jobKey + "] due to exception: " + e.getMessage());
 		}
