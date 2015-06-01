@@ -5,14 +5,12 @@
 <struts>
 	<package name="default" namespace="/" extends="struts-default">
 		<default-action-ref name="httpProxy"/>
-		
 		<action name="httpProxy" class="com.dianping.cricket.ui.action.HttpProxyAction">
 			<result name="success" type="stream">
-				<param name="contentType">text/html</param>
+				<param name="contentType">application/json</param>
 				<param name="inputName">inputStream</param>
 			</result>
 			<result name="error"></result>
 		</action>
 	</package>
-
 </struts>

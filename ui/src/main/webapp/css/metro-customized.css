@@ -1,0 +1,67 @@
+.metro {
+	background-image: url("../img/bg.jpg");
+}
+
+.metro .container {
+	width: 90%;
+	margin: 50px auto;
+	display: block;
+}
+
+.metro .span4 {
+	width: 33.3% !important;
+	padding: 10px;
+}
+
+.metro .grid .row [class*="span"] {
+	margin: 0px;
+}
+
+.metro .tile {
+	box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3), 0 3px 8px rgba(0, 0, 0, 0.2);
+	border: 5px solid rgba(255, 255, 255, 0.3);
+	background-color: initial;
+	width: 100%;
+}
+
+.metro .tile:hover {
+	outline: none;
+	box-shadow: 0px 0px 3pt 2pt #999999;
+}
+
+.metro .tile.rounded {
+	-webkit-border-radius: 10px;
+	-moz-border-radius: 10px;
+	border-radius: 10px;
+}
+
+.metro .tile .tile-content {
+	box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3), 0 3px 8px rgba(0, 0, 0, 0.2);
+	position: relative;
+}
+
+.metro .tile .brand {
+	bottom: -100%;
+}
+
+.metro .tile .tile-content.icon [class*="icon-"] {
+	left: 40%;
+	font-size: 100px;
+}
+
+.metro .item-title {
+	color: #ffffff;
+	font-size: 25px;
+	line-height: 30px;
+}
+
+.metro .tile .brand .text {
+	font-size: 12px;
+	line-height: 15px;
+}
+
+@media screen and (max-width: 1000px), screen and (max-height: 500px) {
+	.metro .tile .tile-content.icon [class*="icon-"] {
+		font-size: 50px;
+	}
+}
