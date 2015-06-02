@@ -24,9 +24,9 @@ var iNettuts = $.extendClass(Base, {
         }
     },
 
-    init : function () {
-        this.setupControls();
-        this.makeSortable();
+    init : function(options) {
+    	$.extend(true, this.options, options);
+    	this.super(options);
     },
     
     getWidgetSettings: function (id) {
@@ -103,7 +103,7 @@ var iNettuts = $.extendClass(Base, {
                 }).prependTo($(options.handleSelector, widget));
             }
         }.bind(this));
-        
+
         $('.edit-box').each(function() {
             $('input', this).keyup(function() {
                 $(this).parents(options.widgetSelector).find('h3').text($(this).val().length>20? $(this).val().substr(0,20) + '...': $(this).val());
@@ -119,6 +119,8 @@ var iNettuts = $.extendClass(Base, {
                 return false;
             });
         });
+        
+        this.makeSortable();
     },
     
     makeSortable : function () {
