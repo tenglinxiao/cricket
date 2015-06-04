@@ -12,6 +12,7 @@ import javax.ws.rs.core.Response.Status;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 
+import com.dianping.cricket.api.system.SystemMonitor;
 import com.dianping.cricket.scheduler.Scheduler;
 import com.dianping.cricket.scheduler.SchedulerLoader;
 import com.dianping.cricket.scheduler.rest.exceptions.SchedulerPersistenceException;
@@ -26,6 +27,14 @@ public class SchedulerMonitor {
 	
 	@Autowired
 	private Scheduler scheduler;
+	
+	private Map<String, Object> systemUsages = SystemMonitor.getUsages();
+	
+	@GET
+	@Path("system") 
+	public JsonResult getSystemUsages() {
+		return ResultWrapper.wrap(systemUsages);
+	}
 	
 	@GET
 	@Path("scheduled")

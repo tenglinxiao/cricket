@@ -64,6 +64,17 @@ var Base = function() {
 			}
 		};
 	}
+	
+	this.$ = function(){
+		if (arguments.length == 0) {
+			return $(document.body);
+		}
+		arg = arguments[0];
+		if (arg instanceof $) {
+			return arg;
+		}
+		return $(arg);
+	}; 
 }
 
 // Wrapped class supporting basic ops.

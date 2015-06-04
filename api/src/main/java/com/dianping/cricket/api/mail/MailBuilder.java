@@ -7,6 +7,7 @@ import javax.mail.internet.InternetAddress;
 
 import org.apache.commons.mail.DefaultAuthenticator;
 import org.apache.commons.mail.Email;
+import org.apache.commons.mail.EmailException;
 import org.apache.commons.mail.HtmlEmail;
 
 import com.dianping.cricket.api.Builder;
@@ -63,5 +64,10 @@ public class MailBuilder implements Builder<Email> {
 	}
 	public static MailBuilder newBuilder() {
 		return new MailBuilder();
+	}
+	
+	
+	public static void main(String args[]) throws EmailException {
+		MailBuilder.newBuilder().subject("test").recipient("tenglinxiao@hotmail.com").body("job_success", null).build().send();
 	}
 }

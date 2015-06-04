@@ -103,6 +103,5 @@ public class ShellJob extends AbstractJob {
 			e.printStackTrace();
 			logger.info("Failed to send out email for Shell job: [" + jobKey + "] due to exception: " + e.getMessage());
 		}
-		
 	}
 }

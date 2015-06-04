@@ -4,6 +4,7 @@ var iNettuts = $.extendClass(Base, {
         widgetSelector: '.widget',
         handleSelector: '.widget-head',
         contentSelector: '.widget-content',
+        editBoxSelector: '.edit-box',
         widgetDefault : {
             movable: true,
             removable: true,
@@ -17,9 +18,6 @@ var iNettuts = $.extendClass(Base, {
                 removable: false,
                 collapsible: false,
                 editable: false
-            },
-            gallery : {
-                colorClasses : ['color-yellow', 'color-red', 'color-white']
             }
         }
     },
@@ -40,11 +38,12 @@ var iNettuts = $.extendClass(Base, {
     	options = this.options;
         
         $(options.widgetSelector, $(options.columns)).each(function(index, widget) {
-            var thisWidgetSettings = this.getWidgetSettings(widget.id);
+            thisWidgetSettings = this.getWidgetSettings(widget.id);
+            $widget = $(widget);
+            
             if (thisWidgetSettings.removable) {
                 $('<a href="#" class="remove">CLOSE</a>').click(function() {
                     if (confirm('This widget will be removed, ok?')) {
-                    	$widget = $(widget);
                     	$widget.animate({
                             opacity: 0    
                         }, function() {
@@ -73,17 +72,10 @@ var iNettuts = $.extendClass(Base, {
                     return false;
                 }).appendTo($(options.handleSelector, widget));
                 
-                $('<div class="edit-box" style="display:none;"/>')
-                    .append('<ul><li class="item"><label>Change the title?</label><input value="' + $('h3', widget).text() + '"/></li>')
-                    .append((function(){
-                        var colorList = '<li class="item"><label>Available colors:</label><ul class="colors">';
-                        $(thisWidgetSettings.colorClasses).each(function() {
-                            colorList += '<li class="' + this + '"/>';
-                        });
-                        return colorList + '</ul>';
-                    })())
-                    .append('</ul>')
-                    .insertAfter($(options.handleSelector, widget));
+                if (thisWidgetSettings.editBox) {
+                	thisWidgetSettings.editBox.apply($('<div class="edit-box" style="display:none;"/>')
+    	                    .insertAfter($(options.handleSelector, widget)));
+                }
             }
             
             if (thisWidgetSettings.collapsible) {
@@ -102,25 +94,22 @@ var iNettuts = $.extendClass(Base, {
                     return false;
                 }).prependTo($(options.handleSelector, widget));
             }
+            
+            if (thisWidgetSettings.content) {
+            	thisWidgetSettings.content.apply($(options.contentSelector, widget));
+            }
         }.bind(this));
-
-        $('.edit-box').each(function() {
-            $('input', this).keyup(function() {
-                $(this).parents(options.widgetSelector).find('h3').text($(this).val().length>20? $(this).val().substr(0,20) + '...': $(this).val());
-            });
-            $('ul.colors li', this).click(function () {
-                var colorStylePattern = /\bcolor-[\w]{1,}\b/,
-                    thisWidgetColorClass = $(this).parents(options.widgetSelector).attr('class').match(colorStylePattern)
-                if (thisWidgetColorClass) {
-                    $(this).parents(options.widgetSelector)
-                        .removeClass(thisWidgetColorClass[0])
-                        .addClass($(this).attr('class').match(colorStylePattern)[0]);
-                }
-                return false;
-            });
-        });
         
         this.makeSortable();
+    },
+    
+    setupWidgetContent: function(widget, setup, empty) {
+    	$content = this.$(widget).find(this.options.contentSelector);
+    	setup.apply(empty? $content.empty(): $content);
+    },
+    
+    setupWidgetEditBox: function(widget, setup){
+    	setup.apply(this.$(widget).find(this.options.editBoxSelector).empty());
     },
     
     makeSortable : function () {
