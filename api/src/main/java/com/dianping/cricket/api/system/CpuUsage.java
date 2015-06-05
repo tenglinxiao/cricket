@@ -8,8 +8,7 @@ import com.dianping.cricket.api.event.Event;
 
 public class CpuUsage implements Observer {
 	private static final NumberFormat FORMAT = NumberFormat.getPercentInstance(); 
-	//public static final String COMMAND = "free | grep Mem";
-	public static final String[] COMMANDS = new String[]{"cat", "/Users/tenglinxiao/log", "|", "head", "-n 1"};
+	public static final String[] COMMANDS = new String[]{"head", "-n 1", "/proc/stat"};
 	private long total;
 	private long idle;
 	private double percentage;
