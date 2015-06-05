@@ -24,7 +24,8 @@ public class SystemMonitor implements Observable {
 		
 		// Register a memory usage obj.
 		monitor.addObserver(new MemoryUsage());
-		ScheduledExecutorService service = Executors.newScheduledThreadPool(2);
+		
+		final ScheduledExecutorService service = Executors.newScheduledThreadPool(2);
 		
 		// Schedule check thread for cpu usage.
 		service.scheduleAtFixedRate(new Runnable() {

@@ -8,7 +8,7 @@ import com.dianping.cricket.api.event.Event;
 
 public class MemoryUsage implements Observer {
 	private static final NumberFormat FORMAT = NumberFormat.getPercentInstance(); 
-	public static final String[] COMMANDS = new String[]{"free", "|", "grep", "Mem"};
+	public static final String[] COMMANDS = new String[]{"sh", "-c", "free | grep Mem"};
 	private long total;
 	private long free;
 	private long used;

@@ -73,7 +73,7 @@ public class CpuUsage implements Observer {
 		}
 		// Should always be true, coding here to avoid unexpected errors.
 		if (total - this.total != 0) {
-			this.percentage = (double)(idle - this.idle) / (total - this.total);
+			this.percentage = 1 - (double)(idle - this.idle) / (total - this.total);
 			this.total = total;
 			this.idle = idle;
 		}
