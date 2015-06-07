@@ -2,9 +2,9 @@
 #      Not common standards for comments on json.
 {	
 	"scheduler": {
-		"bootShell": "/Users/tenglinxiao/Documents/cricket/scheduler/src/main/webapp/bin/run.sh",
-		"jobShells": "/Users/tenglinxiao/Documents/cricket/scheduler/src/main/webapp/shells",
-		"jobJars": "/Users/tenglinxiao/Documents/cricket/scheduler/src/main/webapp/jobs",
+		"bootShell": "/data/scheduler/bin/run.sh",
+		"jobShells": "/data/scheduler/shells",
+		"jobJars": "/data/scheduler/jobs",
 		"daemonFrequency": 300,
 		
 		# db settings option
