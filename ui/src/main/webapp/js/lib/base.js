@@ -125,6 +125,20 @@ Base = $.extendClass(Base, {
 		}))
 	},
 	
+	selfUpdate: function(settings, interval) {
+		var updateHandler = null;
+		(updateHandler= function(){
+			this.ajaxCall($.extend({}, settings, {
+				success: function() {
+					settings.success(arguments[0]);
+					if (interval) {
+						setTimeout(updateHandler, interval);
+					}
+				}
+			}));
+		}.bind(this))();
+	},
+	
 	renderError: function(request, status, error) {
 		window.alert('status:' + status + '  ' + 'status_code:' + request.status);
 	}

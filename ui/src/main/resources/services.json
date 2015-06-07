@@ -1,9 +1,9 @@
 {
 	"services": {
-		"contextPrefix": "/ui/",
+		"contextPrefix": "/ui/proxy/",
 		"contextMapping": [{
 			"name": "scheduler",
-			"host": "10.128.39.178",
+			"host": "localhost",
 			"port": 8080,
 			"context": "scheduler"
 		}]

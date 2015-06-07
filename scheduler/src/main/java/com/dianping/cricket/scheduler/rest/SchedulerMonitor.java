@@ -59,6 +59,44 @@ public class SchedulerMonitor {
 			logger.error("Failed to fetch the service level statistics data! ");
 			return ResultWrapper.wrap(Status.INTERNAL_SERVER_ERROR, "Failed to communicate with db: [" + e.getMessage() + "]");
 		}
-		
+	}
+	
+	@GET
+	@Path("failures")
+	public JsonResult getFailuresStatistics() {
+		try {
+			List<Map<String, Object>> statistics = SchedulerLoader.getLoader().getFailuresStatistics();
+			return ResultWrapper.wrap(statistics);
+		} catch (SchedulerPersistenceException e) {
+			e.printStackTrace();
+			logger.error("Failed to fetch the job failures statistics data! ");
+			return ResultWrapper.wrap(Status.INTERNAL_SERVER_ERROR, "Failed to communicate with db: [" + e.getMessage() + "]");
+		}
+	}
+	
+	@GET
+	@Path("timecost")
+	public JsonResult getJobsTimeCosts() {
+		try {
+			List<Map<String, Object>> statistics = SchedulerLoader.getLoader().getJobTimeCosts();
+			return ResultWrapper.wrap(statistics);
+		} catch (SchedulerPersistenceException e) {
+			e.printStackTrace();
+			logger.error("Failed to fetch the jobs time cost statistics data! ");
+			return ResultWrapper.wrap(Status.INTERNAL_SERVER_ERROR, "Failed to communicate with db: [" + e.getMessage() + "]");
+		}
+	}
+	
+	@GET
+	@Path("timeinterval")
+	public JsonResult getJobsTimeIntervals() {
+		try {
+			List<Map<String, Object>> statistics = SchedulerLoader.getLoader().getJobTimeIntervals();
+			return ResultWrapper.wrap(statistics);
+		} catch (SchedulerPersistenceException e) {
+			e.printStackTrace();
+			logger.error("Failed to fetch the jobs time interval statistics data! ");
+			return ResultWrapper.wrap(Status.INTERNAL_SERVER_ERROR, "Failed to communicate with db: [" + e.getMessage() + "]");
+		}
 	}
 }

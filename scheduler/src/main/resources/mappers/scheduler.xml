@@ -42,7 +42,7 @@
 		select count(*) from job 
 		where `name` = #{jobKey.name} and `group` = #{jobKey.group}
 	</select>
-	<select id="sla_sle" resultType="hashmap">
+	<select id="serviceLevelStatistics" resultType="hashmap">
 		select a.`id`, a.`name`, a.`group`, count(*) as total,
 			sum(
 				case when unix_timestamp(end_time) - unix_timestamp(start_time) > a.sla 
@@ -56,10 +56,41 @@
 			    else 0 
 		    	end
 		    ) as total_sle
-		    from job a
+		from job a
 		inner join job_history b on a.id = b.job
 		where status = 'success'
 		group by a.`id`, a.`name`, a.`group`;
+	</select>
+	<select id="countFailures" resultType="hashmap">
+		select a.`id`, a.`name`, a.`group`, count(*) as total,
+			sum(
+				case when status = 'failure'
+			    then 1 
+			    else 0 
+			    end
+			) as failures
+		from job a
+		inner join job_history b on a.id = b.job
+		group by a.`id`, a.`name`, a.`group`;
+	</select>
+	<select id="getTimeCosts" resultType="hashmap">
+		select a.`id`, a.`name`, a.`group`, 
+			min(b.`status`) as `status`, date(b.`start_time`) as `start_date`,
+			avg(unix_timestamp(b.end_time) - unix_timestamp(b.start_time)) as `time_cost` 
+		from job a
+		inner join job_history b on a.id = b.job
+		where b.created_time > date_add(current_date(), interval -1 month)
+		group by a.`id`, a.`name`, a.`group`, date(b.`start_time`)
+		order by a.`id`, date(b.`start_time`);
+	</select>
+	<select id="getTimeIntervals" resultType="hashmap">
+		select  a.`id`, a.`name`, a.`group`, 
+			min(b.start_time) as start_time, 
+		    avg(unix_timestamp(b.end_time) - unix_timestamp(b.start_time)) as time_cost 
+		from job a
+		inner join job_history b on a.id = b.job
+		where b.`status` = 'success'
+		group by a.`id`, a.`name`, a.`group`
 	</select>
 	<select id="findObsoleteJars" resultType="com.dianping.cricket.scheduler.pojo.JobJar">
 		select id, name, stored_name as storedName, created_time as createdTime

@@ -52,7 +52,8 @@ var Scheduler = $.extendClass(iNettuts, {
 	            	},
 	        		margin: 3
 		        }
-	        }
+	        },
+	        colors: ["#7cb5ec", "#90ed7d", "#f7a35c", "#8085e9", "#f15c80", "#e4d354", "#2b908f", "#f45b5b", "#91e8e1"]
 		});
 	},
 	
@@ -61,10 +62,89 @@ var Scheduler = $.extendClass(iNettuts, {
 		this.globalInit();
 		$this = this;
 		
+		this.setupWidgetContent.call(this.__proto__, $('#intro'), function(){
+			$('<div>').css($this.options.style).css({width: this.width(), height: '250px'}).highcharts({
+				chart: {
+					type: 'spline',
+					alignTicks: false,
+					events: {
+						load: function(){
+							$this.selfUpdate({
+								url: '/ui/proxy/scheduler/rest/system', 
+								success: function(data) {
+									if (this.series[0].data.length > 20) {
+										this.series[0].removePoint(0);
+										this.series[1].removePoint(0);
+									}
+									timestamp = new Date().format('%H:%m:%s');
+									this.series[0].addPoint([timestamp, data.data.CpuUsage.percentage]);
+									this.series[1].addPoint([timestamp, data.data.MemoryUsage.percentage]);
+								}.bind(this)
+							}, 3000);
+							
+						}
+					}
+				},
+		        title: {
+		            text: 'System Health'
+		        },
+		        legend: {
+		            borderWidth: 0
+		        },
+		        xAxis: [{
+		        	categories: [],
+		            crosshair: true
+		        }],
+		        yAxis: [{
+		        	gridLineWidth: 1,
+		            title: {
+		                text: 'CPU'
+		            },
+			        min: 0,
+			        max: 1
+		        }, {
+		        	gridLineWidth: 1,
+		            title: {
+		                text: 'Memory'
+		            },
+			        min: 0,
+			        max: 1,
+			        opposite: true
+		        }],
+		        series: [{
+		            name: 'CPU Usage',
+		            yAxis: 0,
+		            data: []
+		        }, {
+		            name: 'Memory Usage',
+		            yAxis: 1,
+		            data: []
+		        }]
+		    }).appendTo(this);
+		});
+		
 		this.setupWidgetContent.call(this.__proto__, $('#column_1 .widget:eq(1)'), function(){
 			$('<div>').css($this.options.style).css({width: this.width()/2, float: 'left'}).highcharts({
 				chart: {
-		            type: 'solidgauge'
+		            type: 'solidgauge',
+		            alignTicks: false,
+		            events: {
+		            	load: function(){
+							$this.selfUpdate({
+								url: '/ui/proxy/scheduler/rest/scheduled', 
+								success: function(data) {
+									this.yAxis[0].setExtremes(0, 3, true);
+								}.bind(this)
+							}, 3000);
+							
+							$this.selfUpdate({
+								url: '/ui/proxy/scheduler/rest/scheduling', 
+								success: function(data) {
+									this.series[0].setData([data.data.length]);
+								}.bind(this)
+							}, 3000);
+						}
+		            }
 		        },
 		        title: "Jobs Scheduled/Scheduling",
 		        pane: {
@@ -102,8 +182,7 @@ var Scheduler = $.extendClass(iNettuts, {
 		            labels: {
 		                y: 16
 		            },
-		            min: 0,
-		            max: 200
+		            min: 0
 		        },
 
 		        plotOptions: {
@@ -121,8 +200,8 @@ var Scheduler = $.extendClass(iNettuts, {
 		        },
 		        
 		        series: [{
-		            name: 'Speed',
-		            data: [10],
+		            name: 'Scheduling/Scheduled',
+		            data: [0],
 		            dataLabels: {
 		                format: '<div style="text-align:center"><span style="font-size:15px;color:#DDD">{y}/</span>' +
 		                       '<span style="font-size:8px;color:silver">200</span>' + 
@@ -136,7 +215,26 @@ var Scheduler = $.extendClass(iNettuts, {
 			pieWidth = Math.floor(this.width() / 2 - parseInt(this.css('paddingLeft')));
 			$('<div>').css($this.options.style).css({width: pieWidth, float: 'left'}).highcharts({
 		        chart: {
-		            type: 'pie'
+		            type: 'pie',
+		            events: {
+		            	load: function(){
+							$this.selfUpdate({
+								url: '/ui/proxy/scheduler/rest/sla_sle', 
+								success: function(data) {
+									var chartData = new Array();
+									var resultset = data.data;
+									for (var index in resultset) {
+										chartData.push({ 
+											name: resultset[index].group + "." + resultset[index].name,
+										    y: (resultset[index].total - resultset[index].total_sla) / resultset[index].total
+										});
+									}
+
+									this.series[0].setData(chartData);
+								}.bind(this)
+							});
+						}
+		            }
 		        },
 		        
 		        plotOptions: {
@@ -157,25 +255,32 @@ var Scheduler = $.extendClass(iNettuts, {
 		        series: [{
 	                type: 'pie',
 	                name: 'SLA',
-	                data: [
-	                    ['Firefox',   45.0],
-	                    ['IE',       26.8],
-	                    {
-	                        name: 'Chrome',
-	                        y: 12.8,
-	                        sliced: true,
-	                        selected: true
-	                    },
-	                    ['Safari',    8.5],
-	                    ['Opera',     6.2],
-	                    ['Others',   0.7]
-	                ]
+	                data: []
 	            }]
 		    }).appendTo(this);
 			
 			$('<div>').css($this.options.style).css({width: pieWidth, 'float': 'right'}).highcharts({
 		        chart: {
-		            type: 'pie'
+		            type: 'pie',
+		            events: {
+		            	load: function(){
+							$this.selfUpdate({
+								url: '/ui/proxy/scheduler/rest/sla_sle', 
+								success: function(data) {
+									var chartData = new Array();
+									var resultset = data.data;
+									for (var index in resultset) {
+										chartData.push({ 
+											name: resultset[index].group + "." + resultset[index].name,
+										    y: (resultset[index].total - resultset[index].total_sle) / resultset[index].total
+										});
+									}
+
+									this.series[0].setData(chartData);
+								}.bind(this)
+							});
+						}
+		            }
 		        },
 		        
 		        plotOptions: {
@@ -196,27 +301,31 @@ var Scheduler = $.extendClass(iNettuts, {
 		        series: [{
 	                type: 'pie',
 	                name: 'SLE',
-	                data: [
-	                    ['Firefox',   45.0],
-	                    ['IE',       26.8],
-	                    {
-	                        name: 'Chrome',
-	                        y: 12.8,
-	                        sliced: true,
-	                        selected: true
-	                    },
-	                    ['Safari',    8.5],
-	                    ['Opera',     6.2],
-	                    ['Others',   0.7]
-	                ]
+	                data: []
 	            }]
 		    }).appendTo(this);
 		});
 
 		this.setupWidgetContent.call(this.__proto__, $('#column_2 .widget:eq(1)'), function(){
-			$('<div>').css($this.options.style).css({'width': this.width()}).highcharts({
+			$('<div>').css($this.options.style).css({width: this.width(), height: '350px'}).highcharts({
 		        chart: {
-		            type: 'column'
+		            type: 'column',
+		            events: {
+		            	load: function(){
+							$this.selfUpdate({
+								url: '/ui/proxy/scheduler/rest/failures', 
+								success: function(data) {
+									var resultset = data.data;
+									for (var index in resultset) {
+										this.addSeries({ 
+											name: resultset[index].group + "." + resultset[index].name,
+										    data: [resultset[index].total - resultset[index].failures, resultset[index].failures]
+										});
+									}
+								}.bind(this)
+							});
+						}
+		            }
 		        },
 		        title: {
 		            text: 'Success & Failure'
@@ -237,56 +346,75 @@ var Scheduler = $.extendClass(iNettuts, {
 		            },
 			        min: 0
 		        },
-		        series: [{
-		            name: 'Jane',
-		            data: [1, 4]
-		        }, {
-		            name: 'John',
-		            data: [5, 7]
-		        }, {
-		            name: 'John',
-		            data: [5, 3]
-		        }, {
-		            name: 'John',
-		            data: [4, 3]
-		        }]
+		        series: []
 		    }).appendTo(this);
 		});
 		
 		this.setupWidgetContent.call(this.__proto__, $('#column_3 .widget:eq(0)'), function(){
-			$('<div>').css($this.options.style).css({'width': this.width()}).highcharts({
+			$('<div>').css($this.options.style).css({width: this.width(), height: '350px'}).highcharts({
+				chart: {
+					events: {
+		            	load: function(){
+		            		var fillData = function(dates, data) {
+		            			var dataset = new Array();
+		            			var i = 0;
+		            			for (var index = dates.length - 1; index >= 0; index--) {
+		            				if (data[i].start_date == dates[index]) {
+		            					dataset.push([dates[index], data[i].time_cost]);
+		            					if (i < data.length - 1) {
+		            						i++;
+		            					}
+		            				} else {
+		            					dataset.push([dates[index], null]);
+		            				}
+		            			}
+		            			return dataset;
+		            		};
+							$this.selfUpdate({
+								url: '/ui/proxy/scheduler/rest/timecost', 
+								success: function(data) {
+									var dates = new Date().lastMonthDays('%y-%M-%d');
+									var resultset = data.data;
+									var dataset = new Array();
+									var id = 0;
+									for (var index in resultset) {
+										// If it's beginning of a new group elements or it's the end of elements, sumarize the previous group data.
+										if (id != resultset[index].id || index == resultset.length - 1) {
+											if (id != 0) {
+												if (index == resultset.length - 1) {
+													dataset.push(resultset[index]);
+												}
+												var processed = fillData(dates, dataset);
+												this.addSeries({ 
+													name: dataset[0].group + "." + dataset[0].name,
+												    data: processed
+												});
+											}
+											id = resultset[index].id;
+											dataset = [];
+										}
+										dataset.push(resultset[index]);
+									}
+								}.bind(this)
+							});
+						}
+		            }
+				},
 		        title: {
 		            text: 'Time Cost'
 		        },
 		        legend: {
-		            //layout: 'vertical',
-		            //align: 'bottom',
-		            //verticalAlign: 'middle',
 		            borderWidth: 0
 		        },
 		        xAxis: {
-		            categories: ['1', '2','4','5','6'],
 		            crosshair: true
 		        },
 		        yAxis: {
 		            title: {
 		                text: 'Seconds'
-		            },
-			        min: 0
+		            }
 		        },
-		        series: [{
-		            name: 'Tokyo',
-		            data: [7.0, 6.9, 9.5, 14.5, 18.2, 21.5, 25.2, 26.5, 23.3, 18.3, 13.9, 9.6]
-		        }, {
-		            name: 'New York',
-		            data: [-0.2, 0.8, 5.7, 11.3, 17.0, 22.0, 24.8, 24.1, 20.1, 14.1, 8.6, 2.5]
-		        }, {
-		            name: 'Berlin',
-		            data: [-0.9, 0.6, 3.5, 8.4, 13.5, 17.0, 18.6, 17.9, 14.3, 9.0, 3.9, 1.0]
-		        }, {
-		            name: 'London',
-		            data: [3.9, 4.2, 5.7, 8.5, 11.9, 15.2, 17.0, 16.6, 14.2, 10.3, 6.6, 4.8]
-		        }]
+		        series: []
 		    }).appendTo(this);
 		});
 		
@@ -294,21 +422,47 @@ var Scheduler = $.extendClass(iNettuts, {
 			$('<div>').css($this.options.style).css({'width': this.width()}).highcharts({
 				chart: {
 		            type: 'columnrange',
+		            events: {
+		            	load: function(){
+							$this.selfUpdate({
+								url: '/ui/proxy/scheduler/rest/timeinterval', 
+								success: function(data) {
+									var resultset = data.data;
+									var dataset = new Array();
+									var categories = new Array();
+									for (var index in resultset) {
+										categories.push(resultset[index].group + "." + resultset[index].name);
+									}
+									this.xAxis[0].setCategories(categories);
+									for (var index in resultset) {
+										this.addSeries({
+											name: resultset[index].group + '.' + resultset[index].name,
+											data: [{
+												low: new Date(resultset[index].start_time).toDayPoint(), 
+										    	high: new Date(resultset[index].start_time + resultset[index].time_cost * 1000).toDayPoint(),
+										    	x: index
+											}]
+										});
+									}									
+								}.bind(this)
+							});
+						}
+		            }
 		        },
 		        
 		        plotOptions: {
 		            columnrange: {
 		                dataLabels: {
-		                    enabled: true
-//		                    formatter: function () {
-//		                        return this.y ;
-//		                    }
+		                    enabled: true,
+		                    formatter: function () {
+		                        return this.y ;
+		                    }
 		                }
 		            }
 		        },
 
 		        title: {
-		            text: 'Job Time Interval'
+		            text: 'Job Time Range'
 		        },
 		        
 		        legend: {
@@ -323,23 +477,7 @@ var Scheduler = $.extendClass(iNettuts, {
 		        		 text: 'Time'
 		        	 }
 		        },
-		        series: [{
-		            name: 'TimeInterval',
-		            data: [
-		                [-9.7, 9.4],
-		                [-8.7, 6.5],
-		                [-3.5, 9.4],
-		                [-1.4, 19.9],
-		                [0.0, 22.6],
-		                [2.9, 22.5],
-		                [9.2, 22.7],
-		                [7.3, 23.5],
-		                [4.4, 18.0],
-		                [-3.1, 11.4],
-		                [-5.2, 10.4],
-		                [-13.5, 9.8]
-		            ]
-		        }]
+		        series: []
 		    }).appendTo(this);
 		});
 	}

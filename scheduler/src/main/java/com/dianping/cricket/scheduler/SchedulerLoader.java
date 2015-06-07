@@ -116,7 +116,55 @@ public class SchedulerLoader {
 		SqlSession session = null;
 		try {
 			session = factory.openSession();
-			return session.selectList("scheduler.sla_sle");
+			return session.selectList("scheduler.serviceLevelStatistics");
+		} catch (Exception e) {
+			e.printStackTrace();
+			throw new SchedulerPersistenceException(e);
+		} finally {
+			if (session != null) {
+				session.close();
+			}
+		}
+	}
+	
+	// Get the failures ratio.
+	public List<Map<String, Object>> getFailuresStatistics() throws SchedulerPersistenceException {
+		SqlSession session = null;
+		try {
+			session = factory.openSession();
+			return session.selectList("scheduler.countFailures");
+		} catch (Exception e) {
+			e.printStackTrace();
+			throw new SchedulerPersistenceException(e);
+		} finally {
+			if (session != null) {
+				session.close();
+			}
+		}
+	}
+	
+	// Get the failures ratio.
+	public List<Map<String, Object>> getJobTimeCosts() throws SchedulerPersistenceException {
+		SqlSession session = null;
+		try {
+			session = factory.openSession();
+			return session.selectList("scheduler.getTimeCosts");
+		} catch (Exception e) {
+			e.printStackTrace();
+			throw new SchedulerPersistenceException(e);
+		} finally {
+			if (session != null) {
+				session.close();
+			}
+		}
+	}
+	
+	// Get the failures ratio.
+	public List<Map<String, Object>> getJobTimeIntervals() throws SchedulerPersistenceException {
+		SqlSession session = null;
+		try {
+			session = factory.openSession();
+			return session.selectList("scheduler.getTimeIntervals");
 		} catch (Exception e) {
 			e.printStackTrace();
 			throw new SchedulerPersistenceException(e);

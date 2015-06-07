@@ -10,3 +10,5 @@
 .DS_Store
 **/WEB-INF/lib
 bin
+**/bin
+!scheduler/src/main/webapp/bin
