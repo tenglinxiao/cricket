@@ -28,6 +28,7 @@ public class Job {
 	private String mainEntry;
 	private int sla;
 	private int sle;
+	private boolean disabled;
 	private Type type = Type.SHELL_JOB;
 	
 	private Date createdTime;
@@ -104,6 +105,12 @@ public class Job {
 	}
 	public Type getType() {
 		return type;
+	}
+	public boolean isDisabled() {
+		return disabled;
+	}
+	public void setDisabled(boolean disabled) {
+		this.disabled = disabled;
 	}
 	public void setType(Type type) {
 		this.type = type;

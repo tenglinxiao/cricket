@@ -17,6 +17,7 @@
 		<result property="type" column="type"/>
 		<result property="sla" column="sla"/>
 		<result property="sle" column="sle"/>
+		<result property="disabled" column="disabled"/>
 		<result property="createdTime" column="created_time"/>
 		<result property="updatedTime" column="updated_time"/>
 	</resultMap>
@@ -28,7 +29,7 @@
 		<association property="job" resultMap="JobMap"/>
 	</resultMap>
 	<select id="findJobs" resultMap="JobMap">
-		select `id`, `name`, `group`, `description`, `owner`, `mail`, `schedule`, `main_entry`, `type`, `sla`, `sle`, `created_time`, `updated_time` 
+		select `id`, `name`, `group`, `description`, `owner`, `mail`, `schedule`, `main_entry`, `type`, `sla`, `sle`, `disabled`, `created_time`, `updated_time` 
 		from job
 	</select>
 	<select id="findRecoveredJobs" parameterType="date" resultMap="JobStatusMap">

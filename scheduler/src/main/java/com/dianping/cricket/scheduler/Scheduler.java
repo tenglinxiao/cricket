@@ -68,7 +68,9 @@ public class Scheduler implements ServletContextAware {
 		// Load all the jobs from db.
 		List<Job> jobs = schedulerLoader.loadJobs();
 		for (Job job : jobs) {
-			deployJob(job, false);
+			if (!job.isDisabled()) {
+				deployJob(job, false);
+			}
 		}
 		
 		logger.info("Deployed jobs Number: [" + jobs.size() + "]!");
