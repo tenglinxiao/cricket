@@ -62,6 +62,14 @@ var Scheduler = $.extendClass(iNettuts, {
 		this.globalInit();
 		$this = this;
 		
+		var holdPlace = function(value, number) {
+			var arr = new Array();
+			for (var index = 0; index < number; index++) {
+				arr.push(value);
+			}
+			return arr;
+		};
+		
 		this.setupWidgetContent.call(this.__proto__, $('#intro'), function(){
 			$('<div>').css($this.options.style).css({width: this.width(), height: '250px'}).highcharts({
 				chart: {
@@ -69,16 +77,24 @@ var Scheduler = $.extendClass(iNettuts, {
 					alignTicks: false,
 					events: {
 						load: function(){
+							var successTimes = 0;
+							var categories = holdPlace('-', 20);
 							$this.selfUpdate({
 								url: '/ui/proxy/scheduler/rest/system', 
 								success: function(data) {
-									if (this.series[0].data.length > 20) {
+									var timestamp = new Date().format('%H:%m:%s');
+									if (successTimes < 20) {
+										categories[successTimes] = timestamp;
+										this.xAxis[0].setCategories(categories);
+										this.series[0].data[successTimes].update({y: data.data.CpuUsage.percentage});
+										this.series[1].data[successTimes].update({y: data.data.MemoryUsage.percentage});
+										successTimes++;
+									} else {
 										this.series[0].removePoint(0);
 										this.series[1].removePoint(0);
+										this.series[0].addPoint([timestamp, data.data.CpuUsage.percentage]);
+										this.series[1].addPoint([timestamp, data.data.MemoryUsage.percentage]);
 									}
-									timestamp = new Date().format('%H:%m:%s');
-									this.series[0].addPoint([timestamp, data.data.CpuUsage.percentage]);
-									this.series[1].addPoint([timestamp, data.data.MemoryUsage.percentage]);
 								}.bind(this)
 							}, 3000);
 							
@@ -92,7 +108,7 @@ var Scheduler = $.extendClass(iNettuts, {
 		            borderWidth: 0
 		        },
 		        xAxis: [{
-		        	categories: [],
+		        	categories: holdPlace('-', 20),
 		            crosshair: true
 		        }],
 		        yAxis: [{
@@ -109,22 +125,26 @@ var Scheduler = $.extendClass(iNettuts, {
 		            },
 			        min: 0,
 			        max: 1,
+			        labels: {
+		        		x: 2
+		        	},
 			        opposite: true
 		        }],
 		        series: [{
 		            name: 'CPU Usage',
 		            yAxis: 0,
-		            data: []
+		            data: holdPlace(null, 20)
 		        }, {
 		            name: 'Memory Usage',
 		            yAxis: 1,
-		            data: []
+		            data: holdPlace(null, 20)
 		        }]
 		    }).appendTo(this);
 		});
 		
 		this.setupWidgetContent.call(this.__proto__, $('#column_1 .widget:eq(1)'), function(){
-			$('<div>').css($this.options.style).css({width: this.width()/2, float: 'left'}).highcharts({
+			var scheduled = 0;
+			$('<div>').css($this.options.style).css({width: this.width()/2, float: 'left', height: '300px'}).highcharts({
 				chart: {
 		            type: 'solidgauge',
 		            alignTicks: false,
@@ -133,7 +153,8 @@ var Scheduler = $.extendClass(iNettuts, {
 							$this.selfUpdate({
 								url: '/ui/proxy/scheduler/rest/scheduled', 
 								success: function(data) {
-									this.yAxis[0].setExtremes(0, 3, true);
+									this.yAxis[0].setExtremes(0, data.data.length, true);
+									scheduled = data.data.length;
 								}.bind(this)
 							}, 3000);
 							
@@ -172,6 +193,7 @@ var Scheduler = $.extendClass(iNettuts, {
 		                [0.9, '#DF5353'] // red
 		            ],
 		            lineWidth: 0,
+		            tickInterval: 1,
 		            minorTickInterval: null,
 		            tickPixelInterval: 400,
 		            tickWidth: 2,
@@ -180,7 +202,7 @@ var Scheduler = $.extendClass(iNettuts, {
 		                text: 'Jobs'
 		            },
 		            labels: {
-		                y: 16
+		                y: 10
 		            },
 		            min: 0
 		        },
@@ -203,17 +225,20 @@ var Scheduler = $.extendClass(iNettuts, {
 		            name: 'Scheduling/Scheduled',
 		            data: [0],
 		            dataLabels: {
-		                format: '<div style="text-align:center"><span style="font-size:15px;color:#DDD">{y}/</span>' +
-		                       '<span style="font-size:8px;color:silver">200</span>' + 
-		                       '<span style="font-size:15px;color:#DDD"> on scheduling</span></div>'
+		                formatter: function() {
+		                	return '<div style="text-align:center"><span style="font-size:15px;color:#DDD">' + this.y + '/</span>' +
+	                        '<span id="scheduled" style="font-size:8px;color:silver">' + scheduled + '</span>' + 
+	                        '<span style="font-size:15px;color:#DDD"> on scheduling</span></div>'
+		                }
 		            }
 		        }]
 		    }).appendTo(this);
+			this.find('ul').css({width: this.width() / 2 - 20});
 		});
 
 		this.setupWidgetContent.call(this.__proto__, $('#column_2 .widget:eq(0)'), function(){
 			pieWidth = Math.floor(this.width() / 2 - parseInt(this.css('paddingLeft')));
-			$('<div>').css($this.options.style).css({width: pieWidth, float: 'left'}).highcharts({
+			$('<div>').css($this.options.style).css({width: pieWidth, float: 'left', height: '300px'}).highcharts({
 		        chart: {
 		            type: 'pie',
 		            events: {
@@ -223,11 +248,22 @@ var Scheduler = $.extendClass(iNettuts, {
 								success: function(data) {
 									var chartData = new Array();
 									var resultset = data.data;
+									var min = 1;
 									for (var index in resultset) {
-										chartData.push({ 
+										var point = { 
 											name: resultset[index].group + "." + resultset[index].name,
 										    y: (resultset[index].total - resultset[index].total_sla) / resultset[index].total
-										});
+										};
+										if (min > point.y) {
+											min = point.y;
+										}
+										chartData.push(point);
+									}
+									
+									for (var index in chartData) {
+										if (chartData[index].y == min) {
+											chartData[index].selected = chartData[index].sliced = true;
+										}
 									}
 
 									this.series[0].setData(chartData);
@@ -259,7 +295,7 @@ var Scheduler = $.extendClass(iNettuts, {
 	            }]
 		    }).appendTo(this);
 			
-			$('<div>').css($this.options.style).css({width: pieWidth, 'float': 'right'}).highcharts({
+			$('<div>').css($this.options.style).css({width: pieWidth, 'float': 'right', height: '300px'}).highcharts({
 		        chart: {
 		            type: 'pie',
 		            events: {
@@ -269,13 +305,24 @@ var Scheduler = $.extendClass(iNettuts, {
 								success: function(data) {
 									var chartData = new Array();
 									var resultset = data.data;
+									var min = 1;
 									for (var index in resultset) {
-										chartData.push({ 
+										var point = { 
 											name: resultset[index].group + "." + resultset[index].name,
 										    y: (resultset[index].total - resultset[index].total_sle) / resultset[index].total
-										});
+										};
+										if (min > point.y) {
+											min = point.y;
+										}
+										chartData.push(point);
 									}
-
+									
+									for (var index in chartData) {
+										if (chartData[index].y == min) {
+											chartData[index].selected = chartData[index].sliced = true;
+										}
+									}
+									
 									this.series[0].setData(chartData);
 								}.bind(this)
 							});
@@ -337,7 +384,7 @@ var Scheduler = $.extendClass(iNettuts, {
 		            }
 		        },
 		        xAxis: {
-		            categories: ['Sucess', 'Failure'],
+		            categories: ['Success', 'Failure'],
 		            crosshair: true
 		        },
 		        yAxis: {
@@ -358,7 +405,7 @@ var Scheduler = $.extendClass(iNettuts, {
 		            		var fillData = function(dates, data) {
 		            			var dataset = new Array();
 		            			var i = 0;
-		            			for (var index = dates.length - 1; index >= 0; index--) {
+		            			for (var index = 0; index < dates.length; index++) {
 		            				if (data[i].start_date == dates[index]) {
 		            					dataset.push([dates[index], data[i].time_cost]);
 		            					if (i < data.length - 1) {
@@ -373,7 +420,7 @@ var Scheduler = $.extendClass(iNettuts, {
 							$this.selfUpdate({
 								url: '/ui/proxy/scheduler/rest/timecost', 
 								success: function(data) {
-									var dates = new Date().lastMonthDays('%y-%M-%d');
+									var dates = new Date().lastMonthDays();
 									var resultset = data.data;
 									var dataset = new Array();
 									var id = 0;
@@ -407,7 +454,8 @@ var Scheduler = $.extendClass(iNettuts, {
 		            borderWidth: 0
 		        },
 		        xAxis: {
-		            crosshair: true
+		            crosshair: true,
+		            categories: new Date().lastMonthDays('%M-%d')
 		        },
 		        yAxis: {
 		            title: {
@@ -419,7 +467,7 @@ var Scheduler = $.extendClass(iNettuts, {
 		});
 		
 		this.setupWidgetContent.call(this.__proto__, $('#column_3 .widget:eq(1)'), function(){
-			$('<div>').css($this.options.style).css({'width': this.width()}).highcharts({
+			$('<div>').css($this.options.style).css({width: this.width(), height: "300px"}).highcharts({
 				chart: {
 		            type: 'columnrange',
 		            events: {
@@ -440,8 +488,16 @@ var Scheduler = $.extendClass(iNettuts, {
 											data: [{
 												low: new Date(resultset[index].start_time).toDayPoint(), 
 										    	high: new Date(resultset[index].start_time + resultset[index].time_cost * 1000).toDayPoint(),
+										    	startTime: resultset[index].start_time,
 										    	x: index
-											}]
+											}],
+											tooltip: {
+								                pointFormatter: function() {
+								                	return '<span style="color:' + this.color + '">\u25CF</span> <b>StartTime: ' + new Date(this.startTime).format('%H:%m:%d') + '</b><br/>' +
+								                	'<span style="color:' + this.color + '">\u25CF</span> <b>End Time: ' + Date.parseDayPoint(this.high) + '</b>';
+								                }
+								                	
+									        }
 										});
 									}									
 								}.bind(this)

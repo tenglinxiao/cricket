@@ -46,13 +46,13 @@ $.extend(Date.prototype, {
 			var date = new Date();
 			if (!excludesToday) {
 				days -= 1;
-				dates.push(date.format(format));
+				dates.push(date.format(format? format: '%y-%M-%d'));
 			}
 			for (var i = 0; i < days; i++) {
 				date = date.yesterday();
-				dates.push(date.format(format));
+				dates.push(date.format(format? format: '%y-%M-%d'));
 			} 
-			return dates;
+			return dates.reverse();
 		} else {
 			console.error('days must be offered!');
 		}
@@ -61,17 +61,27 @@ $.extend(Date.prototype, {
 	lastMonthDays: function(format, excludesToday) {
 		var dates = new Array();
 		if (!excludesToday) {
-			dates.push(this.format(format));
+			dates.push(this.format(format? format: '%y-%M-%d'));
 		}
 		var yesterday = this.yesterday();
 		while (yesterday.getDate() != this.getDate()) {
-			dates.push(yesterday.format(format));
+			dates.push(yesterday.format(format? format: '%y-%M-%d'));
 			yesterday = yesterday.yesterday();
 		}
-		return dates;
+		return dates.reverse();
 	},
 	
 	toDayPoint: function() {
-		return (this.getHours() + this.getMinutes() / 60 + this.getSeconds() / 3600).toFixed(2);
+		return parseFloat((this.getHours() + this.getMinutes() / 60 + this.getSeconds() / 3600).toFixed(2));
+	}
+});
+
+$.extend(Date, {
+	parseDayPoint: function(dayPoint) {
+		var hours = Math.floor(dayPoint);
+		var seconds = Math.round((dayPoint - hours) * 3600);
+		var mins = Math.floor(seconds / 60);
+		seconds = seconds % 60;
+		return (hours < 10? '0' + hours: hours) + ':' + (mins < 10? '0' + mins: mins) + ':' + (seconds < 10? '0' + seconds: seconds);
 	}
 });
