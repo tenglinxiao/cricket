@@ -154,12 +154,14 @@ var Scheduler = $.extendClass(iNettuts, {
 		
 		this.setupWidgetContent.call(this.__proto__, $('#column_1 .widget:eq(1)'), function(){
 			var scheduled = 0;
+			var __self = this;
 			$('<div>').css($this.options.style).css({width: this.width()/2, float: 'left', height: '300px'}).highcharts({
 				chart: {
 		            type: 'solidgauge',
 		            alignTicks: false,
 		            events: {
 		            	load: function(){
+		            		__self.find('ul').css({width: __self.width() / 2 - 30});
 							$this.selfUpdate({
 								url: '/ui/proxy/scheduler/rest/scheduled', 
 								success: function(data) {
@@ -243,7 +245,7 @@ var Scheduler = $.extendClass(iNettuts, {
 		            }
 		        }]
 		    }).appendTo(this);
-			this.find('ul').css({width: this.width() / 2 - 20});
+			
 		});
 
 		this.setupWidgetContent.call(this.__proto__, $('#column_2 .widget:eq(0)'), function(){
