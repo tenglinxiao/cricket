@@ -70,6 +70,16 @@ var Scheduler = $.extendClass(iNettuts, {
 			return arr;
 		};
 		
+		var toPrecisionNumber = function(number, precision) {
+			if (typeof(number) == 'string') {
+				number = Number(number);
+			}
+			if (precision === undefined) {
+				precision = 2;
+			}
+			return Number(number.toFixed(precision));
+		};
+		
 		this.setupWidgetContent.call(this.__proto__, $('#intro'), function(){
 			$('<div>').css($this.options.style).css({width: this.width(), height: '250px'}).highcharts({
 				chart: {
@@ -86,8 +96,8 @@ var Scheduler = $.extendClass(iNettuts, {
 									if (successTimes < 20) {
 										categories[successTimes] = timestamp;
 										this.xAxis[0].setCategories(categories);
-										this.series[0].data[successTimes].update({y: data.data.CpuUsage.percentage});
-										this.series[1].data[successTimes].update({y: data.data.MemoryUsage.percentage});
+										this.series[0].data[successTimes].update({y: toPrecisionNumber(data.data.CpuUsage.percentage)});
+										this.series[1].data[successTimes].update({y: toPrecisionNumber(data.data.MemoryUsage.percentage)});
 										successTimes++;
 									} else {
 										this.series[0].removePoint(0);
@@ -252,7 +262,7 @@ var Scheduler = $.extendClass(iNettuts, {
 									for (var index in resultset) {
 										var point = { 
 											name: resultset[index].group + "." + resultset[index].name,
-										    y: (resultset[index].total - resultset[index].total_sla) / resultset[index].total
+										    y: toPrecisionNumber((resultset[index].total - resultset[index].total_sla) / resultset[index].total)
 										};
 										if (min > point.y) {
 											min = point.y;
@@ -263,6 +273,7 @@ var Scheduler = $.extendClass(iNettuts, {
 									for (var index in chartData) {
 										if (chartData[index].y == min) {
 											chartData[index].selected = chartData[index].sliced = true;
+											break;
 										}
 									}
 
@@ -309,7 +320,7 @@ var Scheduler = $.extendClass(iNettuts, {
 									for (var index in resultset) {
 										var point = { 
 											name: resultset[index].group + "." + resultset[index].name,
-										    y: (resultset[index].total - resultset[index].total_sle) / resultset[index].total
+										    y: toPrecisionNumber((resultset[index].total - resultset[index].total_sle) / resultset[index].total)
 										};
 										if (min > point.y) {
 											min = point.y;
@@ -405,6 +416,13 @@ var Scheduler = $.extendClass(iNettuts, {
 		            		var fillData = function(dates, data) {
 		            			var dataset = new Array();
 		            			var i = 0;
+		            			if (data[0].start_date < dates[0]) {
+	            					while (i < data.length - 1) {
+	            						if (data[++i].start_date >= dates[0]) {
+	            							break;
+	            						}
+	            					}
+	            				}
 		            			for (var index = 0; index < dates.length; index++) {
 		            				if (data[i].start_date == dates[index]) {
 		            					dataset.push([dates[index], data[i].time_cost]);
@@ -496,7 +514,6 @@ var Scheduler = $.extendClass(iNettuts, {
 								                	return '<span style="color:' + this.color + '">\u25CF</span> <b>StartTime: ' + new Date(this.startTime).format('%H:%m:%d') + '</b><br/>' +
 								                	'<span style="color:' + this.color + '">\u25CF</span> <b>End Time: ' + Date.parseDayPoint(this.high) + '</b>';
 								                }
-								                	
 									        }
 										});
 									}									
