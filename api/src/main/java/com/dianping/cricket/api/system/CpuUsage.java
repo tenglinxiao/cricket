@@ -11,6 +11,10 @@ public class CpuUsage implements Observer {
 	public static final String[] COMMANDS = new String[]{"head", "-n 1", "/proc/stat"};
 	private long total;
 	private long idle;
+	private long user;
+	private long system;
+	private double userPercentage;
+	private double systemPercentage;
 	private double percentage;
 	
 	static {
@@ -29,9 +33,25 @@ public class CpuUsage implements Observer {
 	public long getIdle() {
 		return idle;
 	}
-
+	
 	public void setIdle(long idle) {
 		this.idle = idle;
+	}
+	
+	public long getUser() {
+		return user;
+	}
+
+	public void setUser(long user) {
+		this.user = user;
+	}
+
+	public long getSystem() {
+		return system;
+	}
+
+	public void setSystem(long system) {
+		this.system = system;
 	}
 
 	public double getPercentage() {
@@ -40,6 +60,22 @@ public class CpuUsage implements Observer {
 
 	public void setPercentage(double percentage) {
 		this.percentage = percentage;
+	}
+
+	public double getUserPercentage() {
+		return userPercentage;
+	}
+
+	public void setUserPercentage(double userPercentage) {
+		this.userPercentage = userPercentage;
+	}
+
+	public double getSystemPercentage() {
+		return systemPercentage;
+	}
+
+	public void setSystemPercentage(double systemPercentage) {
+		this.systemPercentage = systemPercentage;
 	}
 
 	public String getUsagePercentage() {
@@ -53,7 +89,7 @@ public class CpuUsage implements Observer {
 			return;
 		}
 		
-		long total = 0, idle = 0, temp = 0;
+		long total = 0, idle = 0, user= 0, system = 0, temp = 0;
 		StringTokenizer tokenizer = new StringTokenizer(result);
 		String token = null;
 		int index = 0;
@@ -64,18 +100,27 @@ public class CpuUsage implements Observer {
 				temp = Long.parseLong(token);
 				// Add all the values found.
 				total += temp;
-				if (index == 4) {
-					// The 4th value is idle value.
-					idle = temp;
+				switch(index) {
+				// The 4th value is idle value.
+				case 0: user = temp; break;
+				// The 4th value is idle value.
+				case 1: system = temp; break;
+				// The 4th value is idle value.
+				case 4: idle = temp; break;
 				}
 			}
+			System.out.println(token);
 			index++;
 		}
 		// Should always be true, coding here to avoid unexpected errors.
 		if (total - this.total != 0) {
 			this.percentage = 1 - (double)(idle - this.idle) / (total - this.total);
+			this.userPercentage = 1 - (double)(user - this.user) / (total - this.total);
+			this.systemPercentage = 1 - (double)(system - this.system) / (total - this.total);
 			this.total = total;
 			this.idle = idle;
+			this.user = user;
+			this.system = system;
 		}
 	}
 }
