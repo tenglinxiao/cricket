@@ -11,12 +11,15 @@ import java.util.List;
 import javax.servlet.ServletContext;
 
 import org.apache.log4j.Logger;
+import org.quartz.CronTrigger;
 import org.quartz.JobBuilder;
 import org.quartz.JobDetail;
 import org.quartz.JobExecutionContext;
+import org.quartz.JobKey;
 import org.quartz.SchedulerException;
 import org.quartz.Trigger;
 import org.quartz.TriggerBuilder;
+import org.quartz.TriggerKey;
 import org.quartz.impl.StdSchedulerFactory;
 import org.springframework.web.context.ServletContextAware;
 
@@ -66,7 +69,7 @@ public class Scheduler implements ServletContextAware {
 		deployDaemon();
 		
 		// Load all the jobs from db.
-		List<Job> jobs = schedulerLoader.loadJobs();
+		List<Job> jobs = schedulerLoader.findJobs();
 		for (Job job : jobs) {
 			if (!job.isDisabled()) {
 				deployJob(job, false);
@@ -88,6 +91,24 @@ public class Scheduler implements ServletContextAware {
 	
 	public List<Job> getDeployedJobs() {
 		return jobs;
+	}
+	
+	public Job getDeployedJob(int jobId) {
+		for (Job job : jobs) {
+			if (job.getId() == jobId) {
+				return job;
+			}
+		}
+		return null;
+	}
+	
+	public Job getDeployedJob(JobKey jobKey) {
+		for (Job job : jobs) {
+			if (job.equals(jobKey)) {
+				return job;
+			}
+		}
+		return null;
 	}
 	
 	public List<Job> getOnSchdulingJobs() {
@@ -141,7 +162,7 @@ public class Scheduler implements ServletContextAware {
 			JobDetail jobDetail = jobBuilder.build();
 			
 			// Create job trigger.
-			TriggerBuilder<Trigger> triggerBuilder = newTrigger().forJob(jobDetail.getKey());
+			TriggerBuilder<Trigger> triggerBuilder = newTrigger().withIdentity(job.getJobKey().getName(), job.getJobKey().getGroup()).forJob(jobDetail.getKey());
 			
 			// If the job is deployed as recovered job, then run it immediately.
 			if (recovered) {
@@ -187,6 +208,24 @@ public class Scheduler implements ServletContextAware {
 			logger.error("Failed to undeploy the job: [" + job.getJobKey() + "]!");
 			return false;
 		} 
+	}
+	
+	public void reschedule(Job job) throws SchedulerException {
+		JobKey jobKey = job.getJobKey();
+		Trigger trigger = scheduler.getTrigger(new TriggerKey(jobKey.getName(), jobKey.getGroup()));
+		TriggerBuilder<CronTrigger> builder = (TriggerBuilder<CronTrigger>)trigger.getTriggerBuilder();
+		CronTrigger newTrigger = builder.withSchedule(cronSchedule(job.getSchedule())).build();
+		scheduler.rescheduleJob(trigger.getKey(), newTrigger);
+		
+		// Reload job instance from db.
+		job = schedulerLoader.findJob(job.getId());
+		
+		// Update the list registered for all deployed jobs.
+		for (int index = 0; index < jobs.size(); index++) {
+			if (jobs.get(index).getId() == job.getId()) {
+				jobs.set(index, job);
+			}
+		}
 	}
 	
 	public void recover() {

@@ -5,10 +5,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.Map;
 
-import javax.ws.rs.Consumes;
-import javax.ws.rs.POST;
-import javax.ws.rs.Path;
-import javax.ws.rs.Produces;
+import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response.Status;
 
@@ -37,6 +34,42 @@ public class SchedulerJobManagement {
 	
 	@Autowired
 	private Scheduler scheduler;
+
+	@GET
+	@Path("allGroups")
+	public JsonResult getAllJobs() {
+        try {
+            return ResultWrapper.wrap(SchedulerLoader.getLoader().findGroups());
+        } catch (SchedulerPersistenceException e) {
+            e.printStackTrace();
+            logger.error("Failed to issue query onto db: [" + e.getMessage() + "]!");
+            return ResultWrapper.wrap(Status.INTERNAL_SERVER_ERROR, "Failed to query on db!");
+        }
+	}
+	
+	@GET
+	@Path("allJobs")
+	public JsonResult getAllGroups() {
+        try {
+            return ResultWrapper.wrap(SchedulerLoader.getLoader().findJobs());
+        } catch (SchedulerPersistenceException e) {
+            e.printStackTrace();
+            logger.error("Failed to issue query onto db: [" + e.getMessage() + "]!");
+            return ResultWrapper.wrap(Status.INTERNAL_SERVER_ERROR, "Failed to query on db!");
+        }
+	}
+
+	@GET
+	@Path("privateJobs")
+	public JsonResult getPrivateJobs(@QueryParam("owner") String owner) {
+        try {
+            return ResultWrapper.wrap(SchedulerLoader.getLoader().findJobsByOwner(owner));
+        } catch (SchedulerPersistenceException e) {
+            e.printStackTrace();
+            logger.error("Failed to issue query onto db: [" + e.getMessage() + "]!");
+            return ResultWrapper.wrap(Status.INTERNAL_SERVER_ERROR, "Failed to query on db!");
+        }
+	}
 	
 	@POST
 	@Path("createJob")
@@ -113,6 +146,32 @@ public class SchedulerJobManagement {
 					e.printStackTrace();
 				}
 			}
+		}
+	}
+	
+	@POST
+	@Path("updateJob")
+	@Consumes(MediaType.APPLICATION_JSON)
+	public JsonResult updateJob(Job job) {
+		try {
+			// Update the job requested in db.
+			if (SchedulerLoader.getLoader().updateJob(job)) {
+				Job scheduledJob = scheduler.getDeployedJob(job.getId());
+				if (scheduledJob != null && !scheduledJob.getSchedule().equals(job.getSchedule())) {
+					scheduler.reschedule(job);
+				}
+				return ResultWrapper.wrap(true);
+			} else {
+				return ResultWrapper.wrap(Status.NOT_FOUND, "CAN NOT find the job requested on scheduler!");
+			}	
+		} catch (SchedulerPersistenceException e) {
+			e.printStackTrace();
+			logger.error("Failed to update job on db: [" + e.getMessage() + "]!");
+			return ResultWrapper.wrap(Status.INTERNAL_SERVER_ERROR, "Failed to communicate to db to update the job!");
+		} catch (SchedulerException e) {
+			e.printStackTrace();
+			logger.error("Failed to reschedule job: [" + e.getMessage() + "]!");
+			return ResultWrapper.wrap(Status.INTERNAL_SERVER_ERROR, "Failed to reschedule the job!");
 		}
 	}
 	

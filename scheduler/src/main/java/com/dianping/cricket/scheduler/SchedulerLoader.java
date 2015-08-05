@@ -20,12 +20,63 @@ public class SchedulerLoader {
 	private SqlSessionFactory factory = SessionStore.getSessionStore().getSessionFactory("scheduler");
 	private SchedulerLoader() {}
 	
+	// Load db job.
+	public Job findJob(int jobId) throws SchedulerPersistenceException {
+		SqlSession session = null;
+		try {
+			session = factory.openSession();
+			Job job = session.selectOne("scheduler.findJob");
+			return job;
+		} catch (Exception e) {
+			e.printStackTrace();
+			throw new SchedulerPersistenceException(e);
+		} finally {
+			if (session != null) {
+				session.close();
+			}
+		}
+	}
+	
 	// Load db jobs.
-	public List<Job> loadJobs() throws SchedulerPersistenceException {
+	public List<Job> findJobs() throws SchedulerPersistenceException {
 		SqlSession session = null;
 		try {
 			session = factory.openSession();
 			List<Job> jobs = session.selectList("scheduler.findJobs");
+			return jobs;
+		} catch (Exception e) {
+			e.printStackTrace();
+			throw new SchedulerPersistenceException(e);
+		} finally {
+			if (session != null) {
+				session.close();
+			}
+		}
+	}
+	
+	// Load db job groups.
+	public List<HashMap<String, Object>> findGroups() throws SchedulerPersistenceException {
+		SqlSession session = null;
+		try {
+			session = factory.openSession();
+			List<HashMap<String, Object>> groups = session.selectList("scheduler.findJobGroups");
+			return groups;
+		} catch (Exception e) {
+			e.printStackTrace();
+			throw new SchedulerPersistenceException(e);
+		} finally {
+			if (session != null) {
+				session.close();
+			}
+		}
+	}
+
+	// Load db jobs.
+	public List<Job> findJobsByOwner(String owner) throws SchedulerPersistenceException {
+		SqlSession session = null;
+		try {
+			session = factory.openSession();
+			List<Job> jobs = session.selectList("scheduler.findJobsByOwner", owner);
 			return jobs;
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -63,6 +114,26 @@ public class SchedulerLoader {
 		try {
 			session = factory.openSession();
 			return session.selectList("scheduler.findRecoveredJobs", startTime);
+		} catch (Exception e) {
+			e.printStackTrace();
+			throw new SchedulerPersistenceException(e);
+		} finally {
+			if (session != null) {
+				session.close();
+			}
+		}
+	}
+	
+	// Update job in db.
+	public boolean updateJob(Job job) throws SchedulerPersistenceException {
+		SqlSession session = null;
+		try {
+			session = factory.openSession();
+			int effected = session.update("scheduler.updateJob", job);
+			if (effected == 1) { 
+				return true;
+			}
+			return false;
 		} catch (Exception e) {
 			e.printStackTrace();
 			throw new SchedulerPersistenceException(e);

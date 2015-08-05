@@ -28,9 +28,19 @@
 		<result property="endTime" column="end_time"/>
 		<association property="job" resultMap="JobMap"/>
 	</resultMap>
+	<select id="findJob" resultMap="JobMap">
+		select `id`, `name`, `group`, `description`, `owner`, `mail`, `schedule`, `main_entry`, `type`, `sla`, `sle`, `disabled`, `created_time`, `updated_time` 
+		from job
+		where `id` = #{jobId}
+	</select>
 	<select id="findJobs" resultMap="JobMap">
 		select `id`, `name`, `group`, `description`, `owner`, `mail`, `schedule`, `main_entry`, `type`, `sla`, `sle`, `disabled`, `created_time`, `updated_time` 
 		from job
+	</select>
+	<select id="findJobsByOwner" parameterType="string" resultMap="JobMap">
+		select `id`, `name`, `group`, `description`, `owner`, `mail`, `schedule`, `main_entry`, `type`, `sla`, `sle`, `disabled`, `created_time`, `updated_time`
+		from job
+		where `owner` = #{owner}
 	</select>
 	<select id="findRecoveredJobs" parameterType="date" resultMap="JobStatusMap">
 		select a.`id` as id, `status`, `recovered`, `start_time`, case when `end_time` = '0000-00-00 00:00:00' then null else `end_time` end as `end_time`,
@@ -38,6 +48,10 @@
 		from job_status a 
 		inner join job b on a.id = b.id
 		where a.status = 'running' and a.start_time &lt; #{startTime}
+	</select>
+	<select id="findJobGroups" resultType="hashmap">
+		select `id`, `name`, `description`, `creator`, `created_time`, `updated_time`
+		from job_group
 	</select>
 	<select id="isExisted" parameterType="com.dianping.cricket.scheduler.pojo.Job" resultType="int">
 		select count(*) from job 
@@ -122,7 +136,11 @@
 	</insert>
 	<update id="updateStatus" parameterType="com.dianping.cricket.scheduler.pojo.Job">
 		update job_status set status = #{status}, start_time = #{startTime}, end_time = <choose><when test="endTime != null">#{endTime}</when><otherwise>0</otherwise></choose> 
-		where id = #{job.id}
+		where id = #{id}
+	</update>
+	<update id="updateJob" parameterType="com.dianping.cricket.scheduler.pojo.Job">
+		update job set `description` = #{description}, `mail` = #{mail}, `schedule` = #{schedule}, `sla` = #{sla}, `sle` = #{sle}
+		where id = #{id}
 	</update>
 	<delete id="deleteJob" parameterType="int">
 		delete from job

@@ -101,10 +101,10 @@ public class CpuUsage implements Observer {
 				// Add all the values found.
 				total += temp;
 				switch(index) {
+				// The 1th user is idle value.
+				case 1: user = temp; break;
 				// The 4th value is idle value.
-				case 0: user = temp; break;
-				// The 4th value is idle value.
-				case 1: system = temp; break;
+				case 3: system = temp; break;
 				// The 4th value is idle value.
 				case 4: idle = temp; break;
 				}

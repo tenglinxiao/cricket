@@ -17,7 +17,7 @@ public class SchedulerListener implements org.quartz.SchedulerListener {
 
 	@Override
 	public void jobUnscheduled(TriggerKey triggerKey) {
-		logger.info("Job scheduled: [" + triggerKey.getName() + ":" + triggerKey.getGroup() + "]" );
+		logger.info("Job unscheduled: [" + triggerKey.getName() + ":" + triggerKey.getGroup() + "]" );
 	}
 
 	@Override
