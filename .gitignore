@@ -11,4 +11,5 @@
 **/WEB-INF/lib
 bin
 **/bin
+*.iml
 !scheduler/src/main/webapp/bin
