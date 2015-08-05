@@ -109,7 +109,6 @@ public class CpuUsage implements Observer {
 				case 4: idle = temp; break;
 				}
 			}
-			System.out.println(token);
 			index++;
 		}
 		// Should always be true, coding here to avoid unexpected errors.
