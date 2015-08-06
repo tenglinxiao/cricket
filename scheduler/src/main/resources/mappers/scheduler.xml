@@ -134,9 +134,9 @@
 	<insert id="createRecipient" parameterType="com.dianping.cricket.scheduler.pojo.Recipient">
 		insert into job_mail_recipient(`id`, `recipient`, `mail`) values (#{job.id}, #{recipient}, #{mail});
 	</insert>
-	<update id="updateStatus" parameterType="com.dianping.cricket.scheduler.pojo.Job">
+	<update id="updateStatus" parameterType="com.dianping.cricket.scheduler.pojo.JobStatus">
 		update job_status set status = #{status}, start_time = #{startTime}, end_time = <choose><when test="endTime != null">#{endTime}</when><otherwise>0</otherwise></choose> 
-		where id = #{id}
+		where id = #{job.id}
 	</update>
 	<update id="updateJob" parameterType="com.dianping.cricket.scheduler.pojo.Job">
 		update job set `description` = #{description}, `mail` = #{mail}, `schedule` = #{schedule}, `sla` = #{sla}, `sle` = #{sle}
