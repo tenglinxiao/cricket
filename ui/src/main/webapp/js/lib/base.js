@@ -22,7 +22,7 @@ $.extend($, {
 		
 		// Create sub function for each class declared.
 		sub = function() {
-			$.extend(this, subClz);
+			$.extend(true, this, subClz);
 		
 			this.super = function() {
 				func = arguments.callee.caller.prototype.__name__;
@@ -36,7 +36,8 @@ $.extend($, {
 			if (arguments.callee.caller != $.extendClass) {
 				// Let all the objs in chain has the same this pointer. 
 				parent = this;
-				while (parent.__proto__ instanceof Base) { 
+				while (parent.__prototype__ instanceof Object) {
+					parent.__proto__ = $.extend(true, {}, parent.__prototype__);
 					parent = parent.__proto__; 
 				}
 				parent.__this__ = this;
@@ -45,10 +46,26 @@ $.extend($, {
 				this.init.apply(this, arguments);
 			}
 		}
-		// create parent class obj as the prototype for new class.
-		sub.prototype = new parentClz;
+		
+		// Create parent class obj as the prototype for new class.
+		sub.prototype.__prototype__ = new parentClz;
 		
 		return sub;
+	},
+	
+	cloneObj: function(object) {
+		if (typeof(object) != 'object') {
+			return object;
+		}
+		var target = object instanceof Array? []: {};
+		for (var prop in object) {
+			if (typeof(object[prop]) != 'object') {
+				target[prop] = object[prop];
+			} else {
+				target[prop] = $.cloneObj(object[prop]);
+			}
+		}
+		return target;
 	}
 });
 
@@ -85,19 +102,19 @@ Base = $.extendClass(Base, {
 		// Merge options with the existed ones.
 		$.extend(this.options, options);
 		
-		self = this.__this__;
+		var __this__ = this.__this__;
 		
 		// Set up all the controls.
-		self.setupControls();
+		__this__.setupControls();
 		
 		// Bind all the events necessary.
-		self.bindEvents();
+		__this__.bindEvents();
 		
 		// Call this method to finish the initialization phase.
-		self.doneInitialization();
+		__this__.doneInitialization();
 		
 		// Trigger event done init.
-		$(self).trigger('doneInit');
+		$(__this__).trigger('doneInit');
 	},
 	
 	setupControls: function() {},
@@ -110,36 +127,52 @@ Base = $.extendClass(Base, {
 	
 	doneInitialization: function(){},
 	
+	// Ajax call with default settings.
 	ajaxCall: function(settings) {
 		$.ajax($.extend(true, settings, {
 			headers: {
 				Accept: 'application/json',
-				'Content-Type': 'application/json'
+				'Content-Type': 'application/json; charset=utf-8'
 			},
 			cache: false,
 			dataType: 'json',
-			timeout: 3000,
 			error: function(request, status, error) {
-				this.renderError(request, status, error);
+				this.handleError(request, status, error);
 			}.bind(this)
 		}))
 	},
 	
-	selfUpdate: function(settings, interval) {
+	// Schedule ajax call with interval settings.
+	scheduleAjaxCall: function(settings, interval) {
 		var updateHandler = null;
 		(updateHandler= function(){
-			this.ajaxCall($.extend({}, settings, {
-				success: function() {
-					settings.success(arguments[0]);
-					if (interval) {
-						setTimeout(updateHandler, interval);
-					}
+			var data = {};
+			if (settings.dataRefresh) {
+				for (var prop in settings.dataRefresh) {
+					data[prop] = settings.dataRefresh[prop].apply(this);
 				}
+			}
+
+			this.ajaxCall($.extend(true, {timeout: 3000}, settings, {
+				data: settings.data instanceof Object? data: settings.data,
+				success: function() {
+					var interrupted = false;
+					if (settings.isInterrupted) {
+						interrupted = settings.isInterrupted.apply(this);
+					}
+					if (!interrupted) {
+						settings.success.apply(this, arguments);
+						if (interval) {
+							setTimeout(updateHandler, interval);
+						}
+					}
+				}.bind(this)
 			}));
 		}.bind(this))();
 	},
 	
-	renderError: function(request, status, error) {
+	// Default implementation for handling ajax errors.
+	handleError: function(request, status, error) {
 		window.alert('status:' + status + '  ' + 'status_code:' + request.status);
 	}
 });

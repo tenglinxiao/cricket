@@ -7,10 +7,35 @@
 		<default-action-ref name="index"/>
 		<action name="index" class="org.apache.struts2.dispatcher.DefaultActionSupport">
 			<result name="success" type="dispatcher">
+				<param name="location">index.html</param>
+			</result>
+		</action>
+		<action name="scheduler" class="org.apache.struts2.dispatcher.DefaultActionSupport">
+			<result name="success" type="dispatcher">
 				<param name="location">scheduler.html</param>
 			</result>
 		</action>
 	</package>
+
+	<package name="ui" namespace="/ui" extends="struts-default">
+		<default-action-ref name="index"/>
+		<action name="index" class="org.apache.struts2.dispatcher.DefaultActionSupport">
+			<result name="success" type="dispatcher">
+				<param name="location">index.html</param>
+			</result>
+		</action>
+		<action name="scheduler" class="org.apache.struts2.dispatcher.DefaultActionSupport">
+			<result name="success" type="dispatcher">
+				<param name="location">scheduler.html</param>
+			</result>
+		</action>
+		<action name="scheduler_viz" class="org.apache.struts2.dispatcher.DefaultActionSupport">
+			<result name="success" type="dispatcher">
+				<param name="location">scheduler_visualization.html</param>
+			</result>
+		</action>
+	</package>
+
 	<package name="proxy" namespace="/proxy" extends="struts-default">
 		<default-action-ref name="httpProxy"/>
 		<action name="httpProxy" class="com.dianping.cricket.ui.action.HttpProxyAction">

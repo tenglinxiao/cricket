@@ -1,0 +1,21 @@
+body {
+    background: url("../img/bg.jpg") repeat;
+}
+
+.tab-pane {
+    padding-left: 10px;
+    padding-right: 10px;
+    height:1200px;
+    overflow: hidden;
+}
+
+form {
+    padding-top: 10px;
+}
+
+.glyphicon {
+	font-size: 10px;
+	color: #b20000;
+}
+
+

@@ -24,10 +24,16 @@ public class HttpProxyImpl implements HttpProxy, UrlMapper {
 	private CloseableHttpClient client = HttpClients.createDefault();
 
 	@Override
-	public HttpResponse get(HttpServletRequest request) {		
+	public HttpResponse get(HttpServletRequest request) {
 		try {
 			String url = convertUrl(request.getRequestURI());
-			
+
+			String queryString = request.getQueryString();
+
+			if (queryString != null) {
+				url += "?" + queryString;
+			}
+
 			// Create get request.
 			HttpGet get = new HttpGet(url);
 			

@@ -3,7 +3,7 @@
 		"contextPrefix": "/ui/proxy/",
 		"contextMapping": [{
 			"name": "scheduler",
-			"host": "localhost",
+			"host": "midas-data-job01.nh",
 			"port": 8080,
 			"context": "scheduler"
 		}]

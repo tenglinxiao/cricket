@@ -1,5 +1,5 @@
 .metro {
-	background-image: url("../img/bg.jpg") repeat-x;
+	background: url("../img/bg.jpg") repeat;
 }
 
 .metro .container {

@@ -1,4 +1,10 @@
+/*
+ * Extend functions onto Date & prototype, to better support date relative ops.
+ * @author uknow.
+ */
+
 $.extend(Date.prototype, {
+	// Format date.
 	format: function(){
 		var formatStr = arguments.length > 0 && arguments[0]? arguments[0]: '%y-%M-%d %H-%m-%s' ;		
 		var matches = formatStr.match(/%[yMdHms]/g);
@@ -17,6 +23,7 @@ $.extend(Date.prototype, {
 		return formatStr;
 	},
 	
+	// Get max days per month.
 	getMonthDays: function() {
 		switch(arguments.length == 0? this.getMonth() + 1: arguments[0]) {
 		case 1: case 3:case 5: case 7:case 8: case 10: case 12: return 31;
@@ -29,6 +36,7 @@ $.extend(Date.prototype, {
 		}
 	},
 	
+	// Get date object for yesterday.
 	yesterday: function() {
 		var date = new Date(this.getTime());
 		if (date.getDate() == 1) {
@@ -40,10 +48,40 @@ $.extend(Date.prototype, {
 		return date;
 	},
 	
+
+	// Get date object for tomorrow.
+	tomorrow: function() {
+		var date = new Date(this.getTime());
+		if (date.getDate() == date.getMonthDays()) {
+			date.setMonth(date.getMonth() + 1);
+			date.setDate(1);
+		} else {
+			date.setDate(date.getDate() + 1);
+		}
+		return date;
+	},
+	
+	// Get date object for next nth day.
+	nextNDay: function(days, excludesToday) {
+		if (days) {
+			var date = new Date(this.getTime());
+			if (!excludesToday) {
+				days -= 1;
+			}
+			for (var i = 0; i < days; i++) {
+				date = date.tomorrow();
+			} 
+			return date;
+		} else {
+			console.error('days must be offered!');
+		}
+	},
+
+	// Get formated date string for last n days.
 	lastNDays: function(days, format, excludesToday) {
 		if (days) {
 			var dates = new Array();
-			var date = new Date();
+			var date = new Date(this.getTime());
 			if (!excludesToday) {
 				days -= 1;
 				dates.push(date.format(format? format: '%y-%M-%d'));
@@ -58,6 +96,23 @@ $.extend(Date.prototype, {
 		}
 	},
 	
+	// Get date obj for last nth day.
+	lastNDay: function(days, excludesToday) {
+		if (days) {
+			var date = new Date(this.getTime());
+			if (!excludesToday) {
+				days -= 1;
+			}
+			for (var i = 0; i < days; i++) {
+				date = date.yesterday();
+			} 
+			return date;
+		} else {
+			console.error('days must be offered!');
+		}
+	},
+	
+	// Get formatted date strings for the last whole month.
 	lastMonthDays: function(format, excludesToday) {
 		var dates = new Array();
 		if (!excludesToday) {
@@ -71,12 +126,14 @@ $.extend(Date.prototype, {
 		return dates.reverse();
 	},
 	
+	// Convert the day time part be number between 0 - 24.
 	toDayPoint: function() {
-		return parseFloat((this.getHours() + this.getMinutes() / 60 + this.getSeconds() / 3600).toFixed(2));
+		return Number((this.getHours() + this.getMinutes() / 60 + this.getSeconds() / 3600).toFixed(2));
 	}
 });
 
 $.extend(Date, {
+	// Parse day time point back to time string.
 	parseDayPoint: function(dayPoint) {
 		var hours = Math.floor(dayPoint);
 		var seconds = Math.round((dayPoint - hours) * 3600);
