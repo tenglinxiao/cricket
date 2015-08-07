@@ -1,6 +1,6 @@
 {
 	"services": {
-		"contextPrefix": "/ui/proxy/",
+		"contextPrefix": "/proxy/",
 		"contextMapping": [{
 			"name": "scheduler",
 			"host": "midas-data-job01.nh",

@@ -19,8 +19,8 @@ public class Util {
 		String handledUrl = url;
 		
 		// Strip the beginning slash.
-		if (url.startsWith(prefix)) {
-			handledUrl = handledUrl.substring(prefix.length());
+		if (url.contains(prefix)) {
+			handledUrl = handledUrl.substring(handledUrl.indexOf(prefix) + prefix.length());
 		}
 		
 		String[] segments = handledUrl.split("/");
