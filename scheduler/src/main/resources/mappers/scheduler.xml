@@ -17,6 +17,7 @@
 		<result property="type" column="type"/>
 		<result property="sla" column="sla"/>
 		<result property="sle" column="sle"/>
+		<result property="notified" column="notified"/>
 		<result property="disabled" column="disabled"/>
 		<result property="createdTime" column="created_time"/>
 		<result property="updatedTime" column="updated_time"/>
@@ -29,22 +30,22 @@
 		<association property="job" resultMap="JobMap"/>
 	</resultMap>
 	<select id="findJob" resultMap="JobMap">
-		select `id`, `name`, `group`, `description`, `owner`, `mail`, `schedule`, `main_entry`, `type`, `sla`, `sle`, `disabled`, `created_time`, `updated_time` 
+		select `id`, `name`, `group`, `description`, `owner`, `mail`, `schedule`, `main_entry`, `type`, `sla`, `sle`, `disabled`, `notified`, `created_time`, `updated_time` 
 		from job
 		where `id` = #{jobId}
 	</select>
 	<select id="findJobs" resultMap="JobMap">
-		select `id`, `name`, `group`, `description`, `owner`, `mail`, `schedule`, `main_entry`, `type`, `sla`, `sle`, `disabled`, `created_time`, `updated_time` 
+		select `id`, `name`, `group`, `description`, `owner`, `mail`, `schedule`, `main_entry`, `type`, `sla`, `sle`, `disabled`, `notified`, `created_time`, `updated_time` 
 		from job
 	</select>
 	<select id="findJobsByOwner" parameterType="string" resultMap="JobMap">
-		select `id`, `name`, `group`, `description`, `owner`, `mail`, `schedule`, `main_entry`, `type`, `sla`, `sle`, `disabled`, `created_time`, `updated_time`
+		select `id`, `name`, `group`, `description`, `owner`, `mail`, `schedule`, `main_entry`, `type`, `sla`, `sle`, `disabled`, `notified`, `created_time`, `updated_time`
 		from job
 		where `owner` = #{owner}
 	</select>
 	<select id="findRecoveredJobs" parameterType="date" resultMap="JobStatusMap">
 		select a.`id` as id, `status`, `recovered`, `start_time`, case when `end_time` = '0000-00-00 00:00:00' then null else `end_time` end as `end_time`,
-		`name`, `group`, `description`, `owner`, `mail`, `schedule`, `main_entry`, `type`, `sla`, `sle`, a.`created_time` as created_time, a.`updated_time` as updated_time  
+		`name`, `group`, `description`, `owner`, `mail`, `schedule`, `main_entry`, `type`, `sla`, `sle`, `notified`, a.`created_time` as created_time, a.`updated_time` as updated_time  
 		from job_status a 
 		inner join job b on a.id = b.id
 		where a.status = 'running' and a.start_time &lt; #{startTime}
@@ -118,8 +119,8 @@
 		where id = #{job.id};
 	</select>
 	<insert id="createJob" parameterType="com.dianping.cricket.scheduler.pojo.Job" useGeneratedKeys="true" keyProperty="id">
-		insert into job(`id`, `name`, `group`, `description`, `owner`, `mail`, `schedule`, `main_entry`, `type`, `sla`, `sle`, `created_time`, `updated_time`) 
-		values(0, #{jobKey.name}, #{jobKey.group}, #{description}, #{owner}, #{mail}, #{schedule}, #{mainEntry}, #{type}, #{sla}, #{sle}, current_timestamp, current_timestamp)
+		insert into job(`id`, `name`, `group`, `description`, `owner`, `mail`, `schedule`, `main_entry`, `type`, `sla`, `sle`, `disabled`, `notified`, `created_time`, `updated_time`) 
+		values(0, #{jobKey.name}, #{jobKey.group}, #{description}, #{owner}, #{mail}, #{schedule}, #{mainEntry}, #{type}, #{sla}, #{sle}, #{disabled}, #{notified}, current_timestamp, current_timestamp)
 	</insert>
 	<insert id="createJobStatus" parameterType="com.dianping.cricket.scheduler.pojo.JobStatus">
 		insert into job_status(`id`, `status`, `recovered`, `start_time`, `end_time`, `created_time`, `updated_time`) 

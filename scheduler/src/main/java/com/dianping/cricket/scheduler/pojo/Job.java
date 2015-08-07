@@ -15,7 +15,6 @@ import com.dianping.cricket.scheduler.rest.exceptions.SchedulerInvalidJobDefinit
 import com.dianping.cricket.scheduler.rest.util.JobUtil;
 
 public class Job {
-	private static Logger logger = Logger.getLogger(Job.class);
 	public static enum Type {
 		SHELL_JOB, JAR_JOB
 	}
@@ -28,6 +27,7 @@ public class Job {
 	private String mainEntry;
 	private int sla;
 	private int sle;
+	private boolean notified;
 	private boolean disabled;
 	private Type type = Type.SHELL_JOB;
 	
@@ -105,6 +105,12 @@ public class Job {
 	}
 	public Type getType() {
 		return type;
+	}
+	public boolean isNotified() {
+		return notified;
+	}
+	public void setNotified(boolean notified) {
+		this.notified = notified;
 	}
 	public boolean isDisabled() {
 		return disabled;
