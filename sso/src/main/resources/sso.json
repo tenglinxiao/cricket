@@ -1,0 +1,12 @@
+{
+  "sso": {
+    "redis": {
+      "host": "localhost",
+      "port": 6379,
+      "pool": {
+        "coreSize": 3,
+        "maxSize": 5
+      }
+    }
+  }
+}

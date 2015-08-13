@@ -1,0 +1,26 @@
+body {
+    background: #F2F1F1;
+}
+
+.input-group + .input-group {
+    margin-top: 10px;
+}
+
+.alert {
+    margin-bottom: 10px;
+}
+
+#login-panel {
+    background: #FFFFFF;
+    width: 500px;
+    border-radius: 10px;
+    box-shadow: 2px 2px 1px #888888;
+    margin: 8% auto 8% auto;
+    padding: 50px;
+}
+
+#login-img {
+    height: 100px;
+    width: 100px;
+    margin-bottom: 20px;
+}
