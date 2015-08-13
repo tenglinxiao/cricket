@@ -76,7 +76,7 @@ public class RedisConnectionPool implements Runnable {
         // If all are used, and not up to the limit max size.
         // add one connection in the queue.
         if (maxSize > connectionPool.size()) {
-            connectionPool.add(new RedisConnection(this.host, this.port));
+            connectionPool.add(new RedisConnection(this, this.host, this.port));
 
             // Acquire the last added semaphore, and then
             if ((connection = connectionPool.get(connectionPool.size() - 1).use()) != null) {
@@ -84,8 +84,14 @@ public class RedisConnectionPool implements Runnable {
             }
         }
 
-        // If can't acquire wanted connection, return null
-        return null;
+        // If can't acquire wanted connection, wait util it's ready.
+        try {
+            this.wait();
+            return this.getConnection();
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+            return null;
+        }
     }
 
     public synchronized void release(RedisConnection connection) {
@@ -95,15 +101,27 @@ public class RedisConnectionPool implements Runnable {
                 connection.release();
             }
         }
+        this.notifyAll();
     }
 
-    public static RedisConnectionPool getConnectionPool() {
+    public static RedisConnectionPool getConnectionPool(RedisConfig config) {
         synchronized (RedisConnectionPool.class) {
             if (pool == null) {
-                pool = new RedisConnectionPool("localhost", 6379, 3, 5);
+                pool = new RedisConnectionPool(config.getHost(), config.getPort(), config.getCoreSize(), config.getMaxSize());
                 pool.startDaemon();
             }
         }
         return pool;
+    }
+
+    public static RedisConnectionPool getConnectionPool() {
+        return pool;
+    }
+
+    public void close() {
+        this.service.shutdownNow();
+        for (RedisConnection c : connectionPool) {
+            c.close();
+        }
     }
 }

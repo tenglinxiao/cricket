@@ -11,17 +11,19 @@ import java.util.concurrent.Semaphore;
  * @since 0.0.1
  */
 public class RedisConnection extends Jedis {
+    private RedisConnectionPool pool;
     private Date createdTime;
     private Date lastAccessTime;
     private Semaphore semaphore = new Semaphore(1);
 
-    public RedisConnection(String host, int port) {
+    public RedisConnection(RedisConnectionPool pool, String host, int port) {
         super(host, port);
+        this.pool = pool;
         this.createdTime = Calendar.getInstance().getTime();
         this.lastAccessTime = this.createdTime;
     }
 
-    public synchronized RedisConnection use() {
+    protected synchronized RedisConnection use() {
         if (semaphore.tryAcquire()) {
             this.lastAccessTime = Calendar.getInstance().getTime();
             return this;
@@ -39,5 +41,8 @@ public class RedisConnection extends Jedis {
 
     public synchronized void release() {
         semaphore.release();
+        synchronized (pool) {
+            pool.notifyAll();
+        }
     }
 }
