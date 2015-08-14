@@ -85,6 +85,6 @@ public class SSOAction extends DefaultActionSupport {
     public void writeOutputStream(String target, String token) throws URISyntaxException {
         URIBuilder builder = new URIBuilder(target);
         builder.clearParameters().addParameter(TOKEN, token);
-        this.inputStream = new ByteArrayInputStream(("<script>window.location.href = '" + target + "';</script>").getBytes());
+        this.inputStream = new ByteArrayInputStream(("<script>window.location.href = '" + builder + "';</script>").getBytes());
     }
 }
