@@ -8,6 +8,7 @@ import javax.servlet.http.HttpServletRequest;
 import java.io.IOException;
 
 /**
+ * @author uknow
  * Created by tenglinxiao on 13/8/15.
  */
 public class AuthenticationFilter extends StrutsPrepareFilter {
