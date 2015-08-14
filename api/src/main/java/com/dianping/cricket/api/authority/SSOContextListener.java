@@ -1,4 +1,4 @@
-package com.dianping.sso;
+package com.dianping.cricket.api.authority;
 
 import com.dianping.cricket.api.cache.redis.RedisConnectionPool;
 

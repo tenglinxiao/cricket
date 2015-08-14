@@ -11,7 +11,7 @@ import com.dianping.cricket.api.conf.Configurable;
 
 public class ServiceEndPointConf extends Configurable {
 	public static final String WATCH_NODE = "services";
-	public static final String SSO_SERVICE = "sso";
+	public static final String SSO_SERVICE = "ssoService";
 	public static final String CONTEXT_PREFIX = "contextPrefix";
 	public static final String CONTEXT_MAPPING = "contextMapping";
 	private static ServiceEndPointConf conf;

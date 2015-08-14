@@ -17,7 +17,7 @@ public class AuthenticationFilter extends StrutsPrepareFilter {
     public void doFilter(ServletRequest req, ServletResponse res, FilterChain chain) throws IOException, ServletException {
         HttpServletRequest request = (HttpServletRequest)req;
         if (request.getMethod().equalsIgnoreCase(POST)) {
-            super.doFilter(req, res, chain);
+            chain.doFilter(req, res);
             return;
         }
 

@@ -20,7 +20,7 @@ public class SSOFilter extends StrutsPrepareFilter {
         // Target is a MUST-HAVE OPTION.
         String target = req.getParameter(TARGET);
         if (target != null) {
-            super.doFilter(req, res, chain);
+            chain.doFilter(req, res);
             return;
         }
 

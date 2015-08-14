@@ -5,7 +5,7 @@
          id="WebApp_ID" version="2.5">
     <display-name>Archetype Created Web Application</display-name>
     <listener>
-        <listener-class>com.dianping.sso.SSOContextListener</listener-class>
+        <listener-class>com.dianping.cricket.api.authority.SSOContextListener</listener-class>
     </listener>
     <filter>
         <filter-name>sso</filter-name>

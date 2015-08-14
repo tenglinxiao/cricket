@@ -1,3 +1,5 @@
+<%@ page contentType="text/html; charset=UTF-8" %>
+<%@ taglib prefix="s" uri="/struts-tags" %>
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -42,6 +44,10 @@
 						<li><a href="">调度审计</a></li>
 						<li><a href="#">说明</a></li>
 					</ul>
+
+                    <ul class="nav navbar-nav navbar-right">
+                        <li><a href="#"><s:property value="#session['username']"/></a></li>
+                    </ul>
 				</div>
 				<!-- /.navbar-collapse -->
 			</div>

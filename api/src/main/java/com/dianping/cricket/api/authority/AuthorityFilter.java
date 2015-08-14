@@ -95,7 +95,8 @@ public class AuthorityFilter extends StrutsPrepareFilter {
             connection.release();
             if (username != null) {
                 request.getSession().setAttribute(USERNAME_KEY, username);
-                super.doFilter(req, res, chain);
+                chain.doFilter(req, res);
+                return;
             }
         }
 
