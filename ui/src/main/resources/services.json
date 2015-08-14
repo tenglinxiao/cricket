@@ -1,5 +1,6 @@
 {
 	"services": {
+	  	"sso": "http://midas-data-job02.nh/sso",
 		"contextPrefix": "/proxy/",
 		"contextMapping": [{
 			"name": "scheduler",

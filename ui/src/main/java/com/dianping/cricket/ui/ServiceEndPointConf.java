@@ -11,9 +11,11 @@ import com.dianping.cricket.api.conf.Configurable;
 
 public class ServiceEndPointConf extends Configurable {
 	public static final String WATCH_NODE = "services";
+	public static final String SSO_SERVICE = "sso";
 	public static final String CONTEXT_PREFIX = "contextPrefix";
 	public static final String CONTEXT_MAPPING = "contextMapping";
 	private static ServiceEndPointConf conf;
+	private String ssoService;
 	private String contextPrefix;
 	private Map<String, ServiceEndPoint> contextMapping;
 	
@@ -37,6 +39,10 @@ public class ServiceEndPointConf extends Configurable {
 		return contextPrefix;
 	}
 
+	public String getSsoService() {
+		return this.ssoService;
+	}
+
 	@Override
 	protected String getWatchNode() {
 		return WATCH_NODE;
@@ -44,6 +50,7 @@ public class ServiceEndPointConf extends Configurable {
 
 	@Override
 	protected void parse(JsonNode watchNode) {
+		this.ssoService = getConfValue(SSO_SERVICE).getTextValue();
 		this.contextMapping = new HashMap<String, ServiceEndPoint>();
 		this.contextPrefix = getConfValue(CONTEXT_PREFIX).getTextValue();
 		

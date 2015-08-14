@@ -16,7 +16,8 @@
 	<module>scheduler</module>
 	<module>platform</module>	
 	<module>ui</module>
-</modules>
+    <module>sso</module>
+  </modules>
   <dependencies>
     <dependency>
       <groupId>junit</groupId>
