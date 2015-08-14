@@ -10,9 +10,16 @@
 		},
 		
 		$this: null,
+
+		context: null,
 		
 		_create: function()
 		{
+			this.context = window.location.href;
+			if (this.context.endsWith('/')) {
+				this.context = window.location.href.substring(0, window.location.href.lastIndexOf('/'));
+			}
+
 			if (this.element.is(this.options.containerClz)) {
 				this.$this = this.element;
 			} else {
@@ -50,6 +57,8 @@
 		
 		bindEvents: function()
 		{
+            var __self = this;
+
 			// Create effects for tile desc.
 			this.$this.find('.tile').hover(function(event) {
 				var $this = $(this);
@@ -58,7 +67,7 @@
 				var $this = $(this);
 				$this.find('.brand').stop().animate({bottom: '-100%'}, 500);
 			}).click(function(){
-				window.location.href = $(this).find('a').attr('href');
+				window.location.href = __self.context + $(this).find('a').attr('href');
 			});
 			
 			// Resize the doms if window resize event fires.
