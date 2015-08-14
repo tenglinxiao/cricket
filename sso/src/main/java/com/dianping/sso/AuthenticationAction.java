@@ -3,6 +3,7 @@ package com.dianping.sso;
 import com.dianping.cricket.api.cache.redis.RedisConnection;
 import com.dianping.cricket.api.cache.redis.RedisConnectionPool;
 import com.opensymphony.xwork2.ActionContext;
+import org.apache.http.client.utils.URIBuilder;
 import org.apache.struts2.ServletActionContext;
 import org.apache.struts2.dispatcher.DefaultActionSupport;
 
@@ -13,6 +14,7 @@ import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.PrintWriter;
+import java.net.URISyntaxException;
 import java.security.MessageDigest;
 
 /**
@@ -55,7 +57,7 @@ public class AuthenticationAction extends DefaultActionSupport {
             cookie.setPath("/");
             cookie.setMaxAge(7 * 24 * 3600);
             ServletActionContext.getResponse().addCookie(cookie);
-            this.writeOutputStream(target);
+            this.writeOutputStream(target, token);
 
             RedisConnection connection = RedisConnectionPool.getConnectionPool().getConnection();
             connection.set(token, username);
@@ -78,8 +80,10 @@ public class AuthenticationAction extends DefaultActionSupport {
         return builder.toString();
     }
 
-    public void writeOutputStream(String target) {
-        this.inputStream = new ByteArrayInputStream(("<script>window.location.href = '" + target + "';</script>").getBytes());
+    public void writeOutputStream(String target, String token) throws URISyntaxException {
+        URIBuilder builder = new URIBuilder(target);
+        builder.clearParameters().addParameter(TOKEN, token);
+        this.inputStream = new ByteArrayInputStream(("<script>window.location.href = '" + builder + "';</script>").getBytes());
     }
 
     public boolean authenticate() {

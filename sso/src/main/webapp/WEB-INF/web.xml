@@ -14,6 +14,12 @@
         </filter-class>
     </filter>
     <filter>
+        <filter-name>authentication</filter-name>
+        <filter-class>
+            com.dianping.sso.AuthenticationFilter
+        </filter-class>
+    </filter>
+    <filter>
         <filter-name>struts2</filter-name>
         <filter-class>
             org.apache.struts2.dispatcher.ng.filter.StrutsPrepareAndExecuteFilter
@@ -22,6 +28,10 @@
     <filter-mapping>
         <filter-name>sso</filter-name>
         <url-pattern>/sso</url-pattern>
+    </filter-mapping>
+    <filter-mapping>
+        <filter-name>authentication</filter-name>
+        <url-pattern>/authenticate</url-pattern>
     </filter-mapping>
     <filter-mapping>
         <filter-name>struts2</filter-name>

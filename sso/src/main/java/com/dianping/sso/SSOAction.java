@@ -2,6 +2,7 @@ package com.dianping.sso;
 
 import com.dianping.cricket.api.cache.redis.RedisConnection;
 import com.dianping.cricket.api.cache.redis.RedisConnectionPool;
+import org.apache.http.client.utils.URIBuilder;
 import org.apache.struts2.ServletActionContext;
 import org.apache.struts2.dispatcher.DefaultActionSupport;
 
@@ -11,6 +12,9 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
+import java.net.MalformedURLException;
+import java.net.URISyntaxException;
+import java.net.URL;
 
 /**
  * Created by tenglinxiao on 12/8/15.
@@ -32,7 +36,7 @@ public class SSOAction extends DefaultActionSupport {
         return inputStream;
     }
 
-    public String execute() {
+    public String execute() throws Exception {
         HttpServletRequest request = ServletActionContext.getRequest();
         Cookie[] cookies = request.getCookies();
         Cookie cookie = null;
@@ -59,11 +63,12 @@ public class SSOAction extends DefaultActionSupport {
                 HttpServletResponse response = ServletActionContext.getResponse();
 
                 // Extend the cookie expired time.
+                cookie.setPath("/");
                 cookie.setMaxAge(7 * 24 * 3600);
                 response.addCookie(cookie);
 
                 // Write output stream for url forward.
-                writeOutputStream(this.target);
+                writeOutputStream(this.target, cookie.getValue());
 
                 return DefaultActionSupport.SUCCESS;
             }
@@ -77,7 +82,9 @@ public class SSOAction extends DefaultActionSupport {
         return DefaultActionSupport.LOGIN;
     }
 
-    public void writeOutputStream(String target) {
+    public void writeOutputStream(String target, String token) throws URISyntaxException {
+        URIBuilder builder = new URIBuilder(target);
+        builder.clearParameters().addParameter(TOKEN, token);
         this.inputStream = new ByteArrayInputStream(("<script>window.location.href = '" + target + "';</script>").getBytes());
     }
 }
