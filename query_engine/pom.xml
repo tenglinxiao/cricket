@@ -2,10 +2,10 @@
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>com.dianping.cricket.queryengine</groupId>
-	<artifactId>query_engine</artifactId>
+	<artifactId>queryengine</artifactId>
 	<packaging>jar</packaging>
 	<version>${parent.version}</version>
-	<name>query_engine</name>
+	<name>query engine</name>
 	<url>http://maven.apache.org</url>
 	<parent>
 		<groupId>com.dianping.cricket</groupId>
