@@ -18,6 +18,7 @@ public class AuthenticationFilter extends StrutsPrepareFilter {
         HttpServletRequest request = (HttpServletRequest)req;
         if (request.getMethod().equalsIgnoreCase(POST)) {
             super.doFilter(req, res, chain);
+            return;
         }
 
         throw new SSOException.MethodTypeException("Request in [" + request.getMethod() + "] type is not allowed for this url!");

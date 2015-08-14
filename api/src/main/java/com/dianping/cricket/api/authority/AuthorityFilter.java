@@ -1,10 +1,13 @@
 package com.dianping.cricket.api.authority;
 
+import com.dianping.cricket.api.cache.redis.RedisConnection;
+import com.dianping.cricket.api.cache.redis.RedisConnectionPool;
 import org.apache.struts2.dispatcher.ng.filter.StrutsPrepareFilter;
 
 import javax.servlet.*;
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
@@ -26,7 +29,15 @@ public class AuthorityFilter extends StrutsPrepareFilter {
     /**
      * Cookie key for user login.
      */
-    public final static String COOKIE_KEY = "token";
+    public final static String TOKEN_KEY = "token";
+    /**
+     * Parameter key for target url.
+     */
+    public final static String TARGET_KEY = "target";
+    /**
+     * Session key for user login.
+     */
+    public final static String USERNAME_KEY = "username";
     /**
      * Urls included.
      */
@@ -39,6 +50,8 @@ public class AuthorityFilter extends StrutsPrepareFilter {
      * Whether filter all urls.
      */
     private boolean filterAll;
+    // Sso service url.
+    private String ssoService;
 
     @Override
     public void init(FilterConfig filterConfig) throws ServletException {
@@ -52,16 +65,41 @@ public class AuthorityFilter extends StrutsPrepareFilter {
         }
     }
 
+    protected void setSsoService(String ssoService) {
+        this.ssoService = ssoService;
+    }
+
     @Override
     public void doFilter(ServletRequest req, ServletResponse res, FilterChain chain) throws IOException, ServletException {
         HttpServletRequest request = (HttpServletRequest)req;
-        Cookie[] cookies = request.getCookies();
-        for (Cookie cookie : cookies) {
-            if (cookie.getName().equals(COOKIE_KEY)) {
 
+        // First try to get token from request.
+        String token = req.getParameter(TOKEN_KEY);
+
+        // Secondly try to get the token from cookie.
+        if (token == null) {
+            Cookie[] cookies = request.getCookies();
+            if (cookies != null) {
+                for (Cookie cookie : cookies) {
+                    if (cookie.getName().equals(TOKEN_KEY)) {
+                        token = cookie.getValue();
+                        break;
+                    }
+                }
             }
         }
-        super.doFilter(req, res, chain);
+
+        if (token != null) {
+            RedisConnection connection = RedisConnectionPool.getConnectionPool().getConnection();
+            String username = connection.get(token);
+            connection.release();
+            if (username != null) {
+                request.getSession().setAttribute(USERNAME_KEY, username);
+                super.doFilter(req, res, chain);
+            }
+        }
+
+        ((HttpServletResponse) res).sendRedirect(ssoService + "?" + TARGET_KEY + "=" + request.getRequestURL());
     }
 
     public List<String> toList(String pathList) {
