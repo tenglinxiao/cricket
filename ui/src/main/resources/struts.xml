@@ -15,6 +15,11 @@
 				<param name="location">scheduler.jsp</param>
 			</result>
 		</action>
+		<action name="exit" class="com.dianping.cricket.ui.action.ExitAction">
+			<result name="success" type="dispatcher">
+				<param name="location">index.html</param>
+			</result>
+		</action>
 	</package>
 
 	<package name="ui" namespace="/ui" extends="struts-default">

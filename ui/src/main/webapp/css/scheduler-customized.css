@@ -18,4 +18,10 @@ form {
 	color: #b20000;
 }
 
+.navbar-inverse .navbar-nav > li > .btn-group {
+    padding-top: 8px;
+    padding-bottom: 5px;
+}
+
+
 

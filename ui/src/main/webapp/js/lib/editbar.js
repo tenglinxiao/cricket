@@ -1,31 +1,13 @@
 /**
  * Created by tenglinxiao on 3/8/15.
+ * @author uknow
  */
 
 var EditBar = $.extendClass(Base, {
     options: {
         containerSelector: null,
         container: null,
-        buttons: [{
-            name: 'edit',
-            text: '编辑',
-            class: 'btn btn-success',
-            click: function() {
-            	$('#editModal').modal().find('.modal-footer .btn-primary').click(function(event) {
-            		$(event.target).parents('.modal').modal('hide');
-            	}).end();
-            }
-        }, {
-            name: 'remove',
-            text: '删除',
-            class: 'btn btn-danger',
-            click: function(){
-            	$('#removeModal').modal().find('.modal-footer .btn-primary').click(function(event) {
-            		$(event.target).parents('.modal').modal('hide');
-            	}).end();
-            }
-        }]
-
+        buttons: []
     },
 
     $container: null,
@@ -43,22 +25,11 @@ var EditBar = $.extendClass(Base, {
     setupControls: function() {
     	var __self = this;
         $.each(this.options.buttons, function(index, def) {
-            switch (def.name) {
-                case 'edit':
-                    __self.createEditButton(def);
-                    break;
-                case 'remove':
-                    __self.createRemoveButton(def);
-                    break;
-            }
+            __self.createButton(def);
         });
     },
 
-    createEditButton: function(def) {
-        $('<button>').attr('type', 'button').addClass(def.class).text(def.text).bind('click', def.click).appendTo(this.$container);
-    },
-
-    createRemoveButton: function(def) {
-        $('<button>').attr('type', 'button').addClass(def.class).text(def.text).bind('click', def.click).appendTo(this.$container);
+    createButton: function(def) {
+        $('<button>').attr('type', 'button').addClass(def.cls).text(def.text).bind('click', def.click).appendTo(this.$container);
     }
 });

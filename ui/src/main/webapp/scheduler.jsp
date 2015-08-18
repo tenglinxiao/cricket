@@ -45,9 +45,22 @@
 						<li><a href="#">说明</a></li>
 					</ul>
 
-                    <ul class="nav navbar-nav navbar-right">
-                        <li><a href="#"><s:property value="#session['username']"/></a></li>
-                    </ul>
+					<ul class="nav navbar-nav navbar-right">
+						<li>
+							<div class="btn-group">
+								<button type="button" class="btn btn-danger" id="username"><s:property value="#session['username']"/></button>
+								<button type="button" class="btn btn-danger dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+									<span class="caret"></span>
+									<span class="sr-only">Toggle Dropdown</span>
+								</button>
+								<ul class="dropdown-menu">
+									<li><a href="#">修改密码</a></li>
+									<li role="separator" class="divider"></li>
+									<li><a href="/exit">退出</a></li>
+								</ul>
+							</div>
+						</li>
+					</ul>
 				</div>
 				<!-- /.navbar-collapse -->
 			</div>
@@ -312,7 +325,7 @@
 											</div>
 										</form>
 										<div class="alert alert-warning">
-											启动调度后，后台将为该Job分配Slot,立即开始调度。</div>
+											选择启动调度后，后台将为该Job分配Slot,立即放入调度池开始调度。</div>
 									</div>
 									<div class="modal-footer">
 										<button type="button" class="btn btn-default"

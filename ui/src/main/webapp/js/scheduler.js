@@ -69,6 +69,7 @@ var Scheduler = $.extendClass(Base, {
             columns: [
                 {data: 'id'},
                 {data: 'jobKey.name'},
+                {data: 'jobKey.group'},
                 {data: 'schedule'},
                 {
                 	data: function(row, type, set, meta) {
@@ -87,8 +88,82 @@ var Scheduler = $.extendClass(Base, {
             ],
             data: [],
             createdRow: function(row, data, index) {
-                new EditBar({container: $(row).find('td:last div')});
+                new EditBar({
+                    container: $(row).find('td:last div'),
+                    buttons: [{
+                            name: 'edit',
+                            text: '编辑',
+                            cls: 'btn btn-success',
+                            click: function() {
+                                var $this = $(this);
+                                $('#editModal').modal().find('.modal-footer .btn-primary').click(function(event) {
+
+                                });
+                            }
+                        }, {
+                            name: 'remove',
+                            text: '删除',
+                            cls: 'btn btn-danger',
+                            click: function(){
+                                var $this = $(this);
+                                $('#removeModal').modal().find('.modal-footer .btn-primary').click(function(event) {
+                                    __self.scheduleAjaxCall({
+                                        url: __self.context + '/proxy/scheduler/rest/deleteJob',
+                                        type: 'POST',
+                                        data: $this.parents('tr').find('td:first').text(),
+                                        success: function(data) {
+                                            $(event.target).parents('.modal').modal('hide');
+                                            var result = $('#result');
+                                            if (data.data) {
+                                                result.find('.alert-success').addClass('show').removeClass('hide').siblings().addClass('hide').removeClass('show');
+                                            } else {
+                                                result.find('.alert-danger').find('span').text(data.msg).end()
+                                                    .addClass('show').removeClass('hide').siblings().addClass('hide').removeClass('show');
+                                            }
+                                        }
+                                    });
+                                });
+                            }
+                        }]
+                });
             },
+            language: {
+                search: '搜索',
+                info: '显示 _START_ 到 _END_， 共 _TOTAL_ 记录',
+                infoEmpty: '没有匹配记录！',
+                infoFiltered: '（过滤 _MAX_ 记录）',
+                lengthMenu: '显示 _MENU_ 记录',
+                emptyTable: '没有记录！',
+                zeroRecords: '没有匹配记录！',
+                paginate: {
+                    first: "首页",
+                    last: "尾页",
+                    next: "下页",
+                    previous: "上页"
+                }
+            }
+        });
+
+        var allJobs = $('#publicJobs').dataTable({
+            processing: false,
+            lengthChange: false,
+            columns: [
+                {data: 'id'},
+                {data: 'jobKey.name'},
+                {data: 'jobKey.group'},
+                {data: 'schedule'},
+                {
+                    data: function(row, type, set, meta) {
+                        return new Date(row.createdTime).format('%y-%M-%d');
+                    }
+                },
+                {
+                    data: function(row, type, set, meta) {
+                        return new Date(row.createdTime).format('%y-%M-%d');
+                    }
+                }
+            ],
+            data: [],
             language: {
                 search: '搜索',
                 info: '显示 _START_ 到 _END_， 共 _TOTAL_ 记录',
@@ -121,7 +196,7 @@ var Scheduler = $.extendClass(Base, {
         this.scheduleAjaxCall({
             url: __self.context + '/proxy/scheduler/rest/privateJobs',
             data: {
-                owner: 'linxiao.teng'
+                owner: $('#username').text()
             },
             success: function(data) {
             	if (data.data.length > 0) {
@@ -162,10 +237,24 @@ var Scheduler = $.extendClass(Base, {
                 });
             }.bind(this)
         });
+
+        $('#public-tab').on('click', function() {
+            var $this = $(this);
+            if (!$this.data('initialized')) {
+                __self.scheduleAjaxCall({
+                    url: __self.context + '/proxy/scheduler/rest/allJobs',
+                    success: function(data) {
+                        allJobs.fnAddData(data.data);
+                        $this.data('initialized', true);
+                    }
+                });
+            }
+        });
         
     },
     
     bindEvents: function() {
+        var __self = this;
     	var $radios = $('input[name=jobType]');
     	$radios.click(function(event) {
     		var $target = $(event.target);
